@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Live Lobby · KTO (Light)</title>
 
 <!-- Assets referenced as strings in JSX — lifted for standalone bundling -->
@@ -97,5 +97,18 @@
 <script type="text/babel" src="data.jsx"></script>
 <script type="text/babel" src="data-sunday.jsx"></script>
 <script type="text/babel" src="app-light.jsx"></script>
+<script>
+(function(){
+  if (!CSS.supports('corner-shape','squircle')) return;
+  function fix(el){
+    if (el.nodeType !== 1) return;
+    var r = getComputedStyle(el).borderTopLeftRadius;
+    if (r.slice(-2) === 'px') { var v = parseFloat(r); if (v >= 3 && v <= 26 && el.style.cornerShape !== 'squircle') el.style.cornerShape = 'squircle'; }
+  }
+  function sweep(n){ fix(n); if (n.querySelectorAll) n.querySelectorAll('*').forEach(fix); }
+  new MutationObserver(function(ms){ ms.forEach(function(m){ m.addedNodes.forEach(sweep); if (m.type === 'attributes') fix(m.target); }); }).observe(document.getElementById('root'), { childList:true, subtree:true, attributes:true, attributeFilter:['style'] });
+  sweep(document.getElementById('root'));
+})();
+</script>
 </body>
 </html>

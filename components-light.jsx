@@ -267,7 +267,7 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
         background:'#ffffff',
         padding: 10,
         display:'flex', flexDirection:'column', gap: 6,
-        borderRadius: isLast ? '0 0 18px 18px' : 0,
+        borderRadius: isLast ? '0 0 26px 26px' : 0,
         borderBottom: isLast ? 'none' : '2px solid #f2f2f2',
         opacity: isPinning ? 0 : 1,
         transition: 'opacity 150ms ease',
@@ -449,7 +449,7 @@ function OddsButtonInner({ odds, twoWay, name }) {
       onPointerUp={() => setPressed(false)}
       onPointerLeave={() => setPressed(false)}
       style={{
-        height: 44, borderRadius: 8,
+        height: 44, borderRadius: 12,
         background: sel ? '#FFCC00' : '#323232', border:'none',
         display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap: 1,
         padding: '0 8px', minWidth: 0, fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color:'#fff', cursor:'pointer',
@@ -562,7 +562,7 @@ function MultiplasRow({ on, onToggle, defaultMarket = 'Match Winner' }) {
 window.UI.MultiplasRow = MultiplasRow;
 function LeagueAccordion({ league, country, count, expanded, onToggle, children }) {
   return (
-    <div style={{ borderRadius: 18, overflow:'hidden', background:'#ffffff', marginBottom: 8 }}>
+    <div style={{ borderRadius: 26, overflow:'hidden', background:'#ffffff', marginBottom: 8 }}>
       <button
         onClick={onToggle}
         style={{

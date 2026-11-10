@@ -58,7 +58,7 @@ const TABS = [
 function HottestNowCard({ event, isPinned, onTogglePin, cardRefs, multiplas }) {
   return (
     <div style={{
-      borderRadius: 18, overflow: 'hidden',
+      borderRadius: 26, overflow: 'hidden',
       background: '#ffffff', marginBottom: 12,
       boxShadow: '0 0 0 1.5px rgba(250,150,0,0.55), 0 0 22px -6px rgba(255,83,83,0.45)',
     }}>
@@ -382,7 +382,7 @@ function App() {
                     {pinnedHot.map(e => (
                       <div key={e.id}
                            ref={node => { if (node) cardRefs.current[e.id] = node; }}
-                           style={{ borderRadius: 18, overflow: 'hidden', background: '#ffffff' }}>
+                           style={{ borderRadius: 26, overflow: 'hidden', background: '#ffffff' }}>
                         <EventCard event={e} isPinned={true} onTogglePin={handleTogglePin} isLast={true} multiplas={multiplas}/>
                       </div>
                     ))}
@@ -400,7 +400,7 @@ function App() {
                   {g.items.map(e => (
                     <div key={e.id}
                          ref={node => { if (node) cardRefs.current[e.id] = node; }}
-                         style={{ borderRadius: 18, overflow: 'hidden', background: '#ffffff' }}>
+                         style={{ borderRadius: 26, overflow: 'hidden', background: '#ffffff' }}>
                       <EventCard
                         event={e}
                         isPinned={pinnedIds.includes(e.id)}
@@ -442,7 +442,7 @@ function App() {
                       {normal.map(e => (
                         <div key={e.id}
                              ref={node => { if (node) cardRefs.current[e.id] = node; }}
-                             style={{ borderRadius: 18, overflow: 'hidden', background: '#ffffff' }}>
+                             style={{ borderRadius: 26, overflow: 'hidden', background: '#ffffff' }}>
                           <EventCard event={e} isPinned={true} onTogglePin={handleTogglePin} isLast={true} multiplas={multiplas}/>
                         </div>
                       ))}
@@ -546,6 +546,20 @@ function App() {
 
 // ========== iOS frame wrapper (uses copied starter component) ==========
 function IOSFrame({ children }) {
+  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 500px)').matches);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 500px)');
+    const h = e => setMobile(e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
+  if (mobile) {
+    return (
+      <div style={{ position:'fixed', inset:0, background:'#f2f2f2', overflow:'hidden', paddingTop:'env(safe-area-inset-top)' }}>
+        {children}
+      </div>
+    );
+  }
   const Frame = window.IOSDevice;
   if (!Frame) {
     return <div style={{ width: 390, height: 844, background:'#f2f2f2', borderRadius: 36, overflow:'hidden' }}>{children}</div>;
