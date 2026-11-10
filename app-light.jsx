@@ -58,7 +58,7 @@ const TABS = [
 function HottestNowCard({ event, isPinned, onTogglePin, cardRefs, multiplas }) {
   return (
     <div style={{
-      borderRadius: 26, overflow: 'hidden',
+      borderRadius: 18, overflow: 'hidden',
       background: '#ffffff', marginBottom: 12,
       boxShadow: '0 0 0 1.5px rgba(250,150,0,0.55), 0 0 22px -6px rgba(255,83,83,0.45)',
     }}>
@@ -382,7 +382,7 @@ function App() {
                     {pinnedHot.map(e => (
                       <div key={e.id}
                            ref={node => { if (node) cardRefs.current[e.id] = node; }}
-                           style={{ borderRadius: 26, overflow: 'hidden', background: '#ffffff' }}>
+                           style={{ borderRadius: 18, overflow: 'hidden', background: '#ffffff' }}>
                         <EventCard event={e} isPinned={true} onTogglePin={handleTogglePin} isLast={true} multiplas={multiplas}/>
                       </div>
                     ))}
@@ -400,7 +400,7 @@ function App() {
                   {g.items.map(e => (
                     <div key={e.id}
                          ref={node => { if (node) cardRefs.current[e.id] = node; }}
-                         style={{ borderRadius: 26, overflow: 'hidden', background: '#ffffff' }}>
+                         style={{ borderRadius: 18, overflow: 'hidden', background: '#ffffff' }}>
                       <EventCard
                         event={e}
                         isPinned={pinnedIds.includes(e.id)}
@@ -442,7 +442,7 @@ function App() {
                       {normal.map(e => (
                         <div key={e.id}
                              ref={node => { if (node) cardRefs.current[e.id] = node; }}
-                             style={{ borderRadius: 26, overflow: 'hidden', background: '#ffffff' }}>
+                             style={{ borderRadius: 18, overflow: 'hidden', background: '#ffffff' }}>
                           <EventCard event={e} isPinned={true} onTogglePin={handleTogglePin} isLast={true} multiplas={multiplas}/>
                         </div>
                       ))}

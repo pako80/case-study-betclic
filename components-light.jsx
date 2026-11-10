@@ -267,7 +267,7 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
         background:'#ffffff',
         padding: 10,
         display:'flex', flexDirection:'column', gap: 6,
-        borderRadius: isLast ? '0 0 26px 26px' : 0,
+        borderRadius: isLast ? '0 0 18px 18px' : 0,
         borderBottom: isLast ? 'none' : '2px solid #f2f2f2',
         opacity: isPinning ? 0 : 1,
         transition: 'opacity 150ms ease',
@@ -314,20 +314,10 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
       {/* participants + score */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap: 4, marginTop: 2 }}>
         <div style={{ display:'flex', flexDirection:'column', gap: 4 }}>
-          <ParticipantRow name={event.home.name} sport={event.sport}/>
-          <ParticipantRow name={event.away.name} sport={event.sport}/>
+          <ParticipantRow name={event.home.name} sport={event.sport} league={event.league}/>
+          <ParticipantRow name={event.away.name} sport={event.sport} league={event.league}/>
         </div>
         <ScoreColumn event={event}/>
-      </div>
-
-      {/* market label + fomo */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop: 4 }}>
-        <span style={{ fontSize: 12, color:'#6b6b6b', letterSpacing: 0 }}>{event.market}</span>
-        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-          {event.fomo === 'Sizzling' && <Fomo label="Sizzling"/>}
-          {event.fomo === 'Hot' && <Fomo label="Hot"/>}
-          {event.fomo === 'Trending' && <Fomo label="Trending"/>}
-        </div>
       </div>
 
       {/* odds row — suspended during penalties */}
@@ -361,10 +351,14 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
   );
 }
 
-function ParticipantRow({ name, sport }) {
+const SHIRT_LEAGUES = new Set(['Ligue 1','Premier League','La Liga','Serie A','Bundesliga']);
+const SHIRTS = { 'PSG':'psg','Marseille':'marseille','Lyon':'lyon','Monaco':'monaco','Lille':'lille','Nice':'nice','Man City':'man-city','Arsenal':'arsenal','Liverpool':'liverpool','Chelsea':'chelsea','Tottenham':'tottenham','Newcastle':'newcastle','Real Madrid':'real-madrid','Barcelona':'barcelona','Atlético Madrid':'atletico-madrid','Sevilla':'sevilla','Inter':'inter','Juventus':'juventus','Milan':'milan','Napoli':'napoli','Bayern Munich':'bayern','Dortmund':'dortmund','Leverkusen':'leverkusen','RB Leipzig':'leipzig' };
+function ParticipantRow({ name, sport, league }) {
+  const shirt = SHIRT_LEAGUES.has(league) && SHIRTS[name];
   return (
     <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-      <span style={{ fontSize: 14, lineHeight: '14px', color:'#111', fontWeight: 600 }}>{name}</span>
+      {shirt && <img src={asset('assets/shirts/' + shirt + '.svg')} width={18} height={18} alt="" style={{ display:'block', flex:'0 0 auto', filter:'drop-shadow(0 0 0.6px rgba(0,0,0,0.55))' }}/>}
+      <span style={{ fontSize: 14, lineHeight: '14px', color:'#111', fontWeight: 400 }}>{name}</span>
     </div>
   );
 }
@@ -449,7 +443,7 @@ function OddsButtonInner({ odds, twoWay, name }) {
       onPointerUp={() => setPressed(false)}
       onPointerLeave={() => setPressed(false)}
       style={{
-        height: 44, borderRadius: 12,
+        height: 44, borderRadius: 8,
         background: sel ? '#FFCC00' : '#323232', border:'none',
         display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap: 1,
         padding: '0 8px', minWidth: 0, fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color:'#fff', cursor:'pointer',
@@ -562,7 +556,7 @@ function MultiplasRow({ on, onToggle, defaultMarket = 'Match Winner' }) {
 window.UI.MultiplasRow = MultiplasRow;
 function LeagueAccordion({ league, country, count, expanded, onToggle, children }) {
   return (
-    <div style={{ borderRadius: 26, overflow:'hidden', background:'#ffffff', marginBottom: 8 }}>
+    <div style={{ borderRadius: 18, overflow:'hidden', background:'#ffffff', marginBottom: 8 }}>
       <button
         onClick={onToggle}
         style={{
@@ -574,7 +568,7 @@ function LeagueAccordion({ league, country, count, expanded, onToggle, children 
       >
         <div style={{ display:'flex', alignItems:'center', gap: 10 }}>
           <Flag code={country || 'intl'} size={20}/>
-          <span style={{ fontSize: 14, fontWeight: 400, color:'#111' }}>{league}</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color:'#111' }}>{league}</span>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
           <span style={{ fontSize: 13, color:'#6b6b6b' }}>{count}</span>
