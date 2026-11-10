@@ -414,7 +414,7 @@ const SHIRTS = { 'PSG':'psg','Marseille':'marseille','Lyon':'lyon','Monaco':'mon
 function ParticipantRow({ name, sport, league }) {
   const shirt = SHIRT_LEAGUES.has(league) && SHIRTS[name];
   return (
-    <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+    <div style={{ display:'flex', alignItems:'center', gap: 8, height: 18 }}>
       {shirt && <img src={asset('assets/shirts/' + shirt + '.svg')} width={18} height={18} alt="" style={{ display:'block', flex:'0 0 auto', filter:'drop-shadow(0 0 0.6px rgba(0,0,0,0.55))' }}/>}
       <span style={{ fontSize: 14, lineHeight: '14px', color:'#111', fontWeight: 600 }}>{name}</span>
     </div>
@@ -426,7 +426,7 @@ function ScoreColumn({ event }) {
     // tennis / volleyball
     const h = event.home, a = event.away;
     return (
-      <div style={{ display:'grid', gridTemplateColumns:`repeat(${h.sets.length}, 20px)`, gap: 4, rowGap: 4, alignItems:'center', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif", fontSize: 14, lineHeight: '14px', fontWeight: 700, color:'#00a854' }}>
+      <div style={{ display:'grid', gridTemplateColumns:`repeat(${h.sets.length}, 20px)`, gap: 2, rowGap: 2, gridAutoRows: 18, alignItems:'center', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif", fontSize: 14, lineHeight: '18px', fontWeight: 700, color:'#00a854' }}>
         {h.sets.map((s, i) => (
           <span key={'h'+i} style={{ textAlign:'center', color: '#00a854' }}>{s}</span>
         ))}
@@ -437,12 +437,12 @@ function ScoreColumn({ event }) {
     );
   }
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap: 2, alignItems:'flex-end', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif", fontSize: 14, lineHeight: '14px', fontWeight: 700, color:'#00a854', minWidth: 18 }}>
-      <span style={{ display:'flex', alignItems:'baseline', gap: 5 }}>
+    <div style={{ display:'flex', flexDirection:'column', gap: 2, alignItems:'flex-end', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif", fontSize: 14, lineHeight: '18px', fontWeight: 700, color:'#00a854', minWidth: 18 }}>
+      <span style={{ display:'flex', alignItems:'center', gap: 5, height: 18 }}>
         {event.penalties && <span style={{ fontSize: 14, fontWeight: 700, color:'#9a7000' }}>({event.penalties.home})</span>}
         <span>{event.home.score}</span>
       </span>
-      <span style={{ display:'flex', alignItems:'baseline', gap: 5 }}>
+      <span style={{ display:'flex', alignItems:'center', gap: 5, height: 18 }}>
         {event.penalties && <span style={{ fontSize: 14, fontWeight: 700, color:'#9a7000' }}>({event.penalties.away})</span>}
         <span>{event.away.score}</span>
       </span>
