@@ -1,6 +1,6 @@
 // app.jsx — Live Lobby Pinning prototype
 const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback } = React;
-const { Icon, Flag, StatusBar, TopHeader, TabChips, EventCard, SectionHeader, EmptyState, LeagueAccordion, MultiplasRow, MarketCtx, MarketTabs } = window.UI;
+const { Icon, Flag, StatusBar, TopHeader, TabChips, EventCard, SectionHeader, EmptyState, LeagueAccordion, MultiplasRow, MarketCtx, MarketTabs, OpenCtx } = window.UI;
 
 // Variation tweaks for stakeholder demo
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -11,6 +11,8 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 // ========== global keyframes / styles ==========
 const styleEl = document.createElement('style');
 styleEl.textContent = `
+@keyframes kto-drop-in { from { opacity: 0; transform: translateY(-10px) scaleY(0.9); clip-path: inset(0 0 100% 0 round 14px); } to { opacity: 1; transform: translateY(0) scaleY(1); clip-path: inset(0 0 0 0 round 14px); } }
+@keyframes kto-slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes kto-pulse {
   0% { box-shadow: 0 0 0 0 rgba(0,221,112,0.55); }
   70% { box-shadow: 0 0 0 6px rgba(0,221,112,0); }
@@ -154,6 +156,16 @@ function App() {
   const [collapsedLeagues, setCollapsedLeagues] = useState(() => new Set()); // leagues that user collapsed
   const [multiplas, setMultiplas] = useState(false); // Múltiplas View toggle
   const [markets, setMarkets] = useState({});
+  const [openId, setOpenId] = useState(() => new URLSearchParams(location.search).get('event'));
+  const [openFrom, setOpenFrom] = useState(null);
+  const rootRef = useRef(null);
+  const openEventCard = (e, r) => {
+    const cr = rootRef.current && rootRef.current.getBoundingClientRect();
+    setOpenFrom(cr && r ? { t: Math.max(0, r.top - cr.top), l: Math.max(0, r.left - cr.left), r: Math.max(0, cr.right - r.right), b: Math.max(0, cr.bottom - r.bottom) } : null);
+    setOpenId(e.id);
+  };
+  const [lobbyHidden, setLobbyHidden] = useState(false);
+  useEffect(() => { if (!openId) { setLobbyHidden(false); return; } const t = setTimeout(() => setLobbyHidden(true), 520); return () => clearTimeout(t); }, [openId]);
   const setMarket = (sport, id) => setMarkets(m => ({ ...m, [sport]: id }));
   const [tweaks, setTweaks] = window.useTweaks ? window.useTweaks(TWEAK_DEFAULTS) : [TWEAK_DEFAULTS, () => {}];
   const urlSnap = useRef(new URLSearchParams(location.search).get('snap'));
@@ -308,13 +320,14 @@ function App() {
 
   return (
     <MarketCtx.Provider value={markets}>
+    <OpenCtx.Provider value={openEventCard}>
     <IOSFrame>
-      <div style={{
+      <div ref={rootRef} style={{
         height:'100%', display:'flex', flexDirection:'column',
         background:'#f2f2f2', color:'#111', overflow:'hidden',
         position:'relative',
       }}>
-        <div style={{ position:'absolute', top:0, left:0, right:0, zIndex:10 }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, zIndex:10, visibility: lobbyHidden ? 'hidden' : 'visible' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, bottom: chipsScroll ? -40 : -44, pointerEvents:'none', opacity: chipsScroll ? blurOp : 1,
             background:'linear-gradient(to bottom, rgba(242,242,242,0.88) 0%, rgba(242,242,242,0.72) 60%, rgba(242,242,242,0.3) 100%)',
             WebkitBackdropFilter:'blur(20px) saturate(180%)', backdropFilter:'blur(20px) saturate(180%)',
@@ -331,7 +344,7 @@ function App() {
           onScroll={(e) => setBlurOp(Math.min(1, e.currentTarget.scrollTop / 24))}
           className="scroll-area"
           style={{
-            position:'absolute', inset:0, overflowY:'auto', padding: (chipsScroll ? '56px' : '116px') + ' 8px 80px',
+            visibility: lobbyHidden ? 'hidden' : 'visible', position:'absolute', inset:0, overflowY:'auto', padding: (chipsScroll ? '56px' : '116px') + ' 8px 80px',
             scrollbarWidth:'none',
           }}
         >
@@ -511,6 +524,8 @@ function App() {
           )}
         </div>
 
+        {openId && window.EventPage && (() => { const ev = findEvent(openId) || events.find(e => e.sport === 'football') || events[0]; return ev ? <window.EventPage event={ev} from={openFrom} onBeginClose={() => setLobbyHidden(false)} leagueEvents={events.filter(x => x.league === ev.league)} onSelect={(id) => setOpenId(id)} onClose={() => { setLobbyHidden(false); setOpenId(null); setOpenFrom(null); }}/> : null; })()}
+
         {/* TOAST */}
         {toast && (
           <div style={{
@@ -559,6 +574,7 @@ function App() {
         </window.TweaksPanel>
       )}
     </IOSFrame>
+    </OpenCtx.Provider>
     </MarketCtx.Provider>
   );
 }

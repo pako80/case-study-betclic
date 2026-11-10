@@ -161,7 +161,7 @@ function TabChips({ tabs, active, onChange, pinnedCount }) {
   const ref = useRef(null);
   return (
     <div style={{
-      display:'flex', gap: 8, padding: '8px 12px',
+      display:'flex', gap: 7, padding: '8px 12px',
       overflowX: 'auto', scrollbarWidth:'none', flex:'0 0 auto',
       background:'transparent',
     }} ref={ref}>
@@ -173,7 +173,7 @@ function TabChips({ tabs, active, onChange, pinnedCount }) {
             key={t.id}
             onClick={() => onChange(t.id)}
             style={{
-              display:'flex', alignItems:'center', gap: 6,
+              display:'flex', alignItems:'center', gap: t.id === 'hot' ? 3 : 6,
               padding: isPin ? '0 8px' : t.id === 'hot' ? '0 14px 0 8px' : '0 14px', height: 36,
               borderRadius: 999,
               border: 'none',
@@ -252,6 +252,15 @@ window.getExtraMarkets = getExtraMarkets;
 
 
 const MarketCtx = React.createContext({});
+const OpenCtx = React.createContext(null);
+function periodLabel(event) {
+  if (event.sport !== 'football' || !event.live) return null;
+  const m = String(event.live.minute);
+  if (/^HT$/i.test(m)) return null;
+  const n = parseInt(m, 10);
+  if (isNaN(n)) return null;
+  return n <= 45 ? 'First Half' : 'Second Half';
+}
 const MARKETS = {
   football: [['winner','Match Winner'],['nextgoal','Next Goal'],['totalgoals','Total Goals'],['doublechance','Double Chance']],
   tennis: [['winner','Match Winner'],['nextgame','Next Game'],['totalgames','Total Games'],['setwinner','Set Winner']],
@@ -301,6 +310,7 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
   const sport = window.SPORTS[event.sport];
   const [oddsFlash, setOddsFlash] = useState({});
   const mk = React.useContext(MarketCtx)[event.sport];
+  const openEvt = React.useContext(OpenCtx);
   const alt = marketOdds(event, mk);
 
   return (
@@ -346,6 +356,7 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
             <>
               <Icon.LiveDot size={6}/>
               <span style={{ color:'#00a854', fontWeight: 600, fontSize: 11, letterSpacing: -0.2 }}>{event.live.minute}</span>
+              {periodLabel(event) && <span style={{ color:'#00a854', fontWeight: 600, fontSize: 11, letterSpacing: -0.2 }}>{periodLabel(event)}</span>}
             </>
           )}
         </div>
@@ -356,7 +367,7 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
       </div>
 
       {/* participants + score */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap: 4, marginTop: 2 }}>
+      <div onClick={(e) => openEvt && openEvt(event, e.currentTarget.parentElement.getBoundingClientRect())} style={{ display:'grid', gridTemplateColumns:'1fr auto', gap: 4, marginTop: 2, cursor: openEvt ? 'pointer' : 'default' }}>
         <div style={{ display:'flex', flexDirection:'column', gap: 2 }}>
           <ParticipantRow name={event.home.name} sport={event.sport} league={event.league}/>
           <ParticipantRow name={event.away.name} sport={event.sport} league={event.league}/>
@@ -609,7 +620,14 @@ function MultiplasRow({ on, onToggle, defaultMarket = 'Match Winner' }) {
   );
 }
 window.UI.MultiplasRow = MultiplasRow;
+window.UI.periodLabel = periodLabel;
 window.UI.MarketCtx = MarketCtx;
+window.UI.OpenCtx = OpenCtx;
+window.UI.OddsButton = OddsButton;
+window.UI.MARKETS = MARKETS;
+window.UI.marketOdds = marketOdds;
+window.UI.ScoreColumn = ScoreColumn;
+window.UI.getShirt = (name, league) => (SHIRT_LEAGUES.has(league) && SHIRTS[name]) ? 'assets/shirts/' + SHIRTS[name] + '.svg' : null;
 window.UI.MarketTabs = MarketTabs;
 function LeagueAccordion({ league, country, count, expanded, onToggle, children }) {
   return (
