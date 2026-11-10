@@ -360,12 +360,15 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
 
       {/* participants + score */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap: 4, marginTop: 2 }}>
-        <div style={{ display:'flex', flexDirection:'column', gap: 4 }}>
+        <div style={{ display:'flex', flexDirection:'column', gap: 2 }}>
           <ParticipantRow name={event.home.name} sport={event.sport} league={event.league}/>
           <ParticipantRow name={event.away.name} sport={event.sport} league={event.league}/>
         </div>
         <ScoreColumn event={event}/>
       </div>
+
+      {/* market name */}
+      <span style={{ fontSize: 11, color:'#6b6b6b', letterSpacing: 0, marginTop: 4 }}>{alt ? (((MARKETS[event.sport] || []).find(m => m[0] === mk) || [])[1] || event.market) : event.market}</span>
 
       {/* odds row — suspended during penalties */}
       {event.penalties ? (
@@ -406,14 +409,14 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
   );
 }
 
-const SHIRT_LEAGUES = new Set(['Ligue 1','Premier League','La Liga','Serie A','Bundesliga']);
-const SHIRTS = { 'PSG':'psg','Marseille':'marseille','Lyon':'lyon','Monaco':'monaco','Lille':'lille','Nice':'nice','Man City':'man-city','Arsenal':'arsenal','Liverpool':'liverpool','Chelsea':'chelsea','Tottenham':'tottenham','Newcastle':'newcastle','Real Madrid':'real-madrid','Barcelona':'barcelona','Atlético Madrid':'atletico-madrid','Sevilla':'sevilla','Inter':'inter','Juventus':'juventus','Milan':'milan','Napoli':'napoli','Bayern Munich':'bayern','Dortmund':'dortmund','Leverkusen':'leverkusen','RB Leipzig':'leipzig' };
+const SHIRT_LEAGUES = new Set(['Ligue 1','Premier League','La Liga','Serie A','Bundesliga','Süper Lig']);
+const SHIRTS = { 'PSG':'psg','Marseille':'marseille','Lyon':'lyon','Monaco':'monaco','Lille':'lille','Nice':'nice','Man City':'man-city','Arsenal':'arsenal','Liverpool':'liverpool','Chelsea':'chelsea','Tottenham':'tottenham','Newcastle':'newcastle','Real Madrid':'real-madrid','Barcelona':'barcelona','Atlético Madrid':'atletico-madrid','Sevilla':'sevilla','Inter':'inter','Juventus':'juventus','Milan':'milan','Napoli':'napoli','Bayern Munich':'bayern','Dortmund':'dortmund','Leverkusen':'leverkusen','RB Leipzig':'leipzig','Fenerbahçe':'fenerbahce','Galatasaray':'galatasaray' };
 function ParticipantRow({ name, sport, league }) {
   const shirt = SHIRT_LEAGUES.has(league) && SHIRTS[name];
   return (
     <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
       {shirt && <img src={asset('assets/shirts/' + shirt + '.svg')} width={18} height={18} alt="" style={{ display:'block', flex:'0 0 auto', filter:'drop-shadow(0 0 0.6px rgba(0,0,0,0.55))' }}/>}
-      <span style={{ fontSize: 14, lineHeight: '14px', color:'#111', fontWeight: 400 }}>{name}</span>
+      <span style={{ fontSize: 14, lineHeight: '14px', color:'#111', fontWeight: 600 }}>{name}</span>
     </div>
   );
 }
@@ -434,7 +437,7 @@ function ScoreColumn({ event }) {
     );
   }
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap: 4, alignItems:'flex-end', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif", fontSize: 14, lineHeight: '14px', fontWeight: 700, color:'#00a854', minWidth: 18 }}>
+    <div style={{ display:'flex', flexDirection:'column', gap: 2, alignItems:'flex-end', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif", fontSize: 14, lineHeight: '14px', fontWeight: 700, color:'#00a854', minWidth: 18 }}>
       <span style={{ display:'flex', alignItems:'baseline', gap: 5 }}>
         {event.penalties && <span style={{ fontSize: 14, fontWeight: 700, color:'#9a7000' }}>({event.penalties.home})</span>}
         <span>{event.home.score}</span>
@@ -625,7 +628,7 @@ function LeagueAccordion({ league, country, count, expanded, onToggle, children 
       >
         <div style={{ display:'flex', alignItems:'center', gap: 10 }}>
           <Flag code={country || 'intl'} size={20}/>
-          <span style={{ fontSize: 14, fontWeight: 700, color:'#111' }}>{league}</span>
+          <span style={{ fontSize: 14, fontWeight: 400, color:'#111' }}>{league}</span>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
           <span style={{ fontSize: 13, color:'#6b6b6b' }}>{count}</span>

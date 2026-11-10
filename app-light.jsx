@@ -433,7 +433,7 @@ function App() {
           {/* SINGLE-SPORT TAB RENDER (Football / Tennis / Basketball / Volleyball) */}
           {!showingPinTab && activeTab !== 'hot' && (
             <>
-              {['football','tennis','basketball'].includes(activeTab) && <MarketTabs sport={activeTab} value={markets[activeTab]} onChange={setMarket}/>}
+              {['football','tennis','basketball'].includes(activeTab) && <div style={{ paddingTop: 14 }}><MarketTabs sport={activeTab} value={markets[activeTab]} onChange={setMarket}/></div>}
               {pinnedVisible.length > 0 && (() => {
                 const hotPinned = pinnedVisible.filter(e => e.id.startsWith('hn-'));
                 const normal = pinnedVisible.filter(e => !e.id.startsWith('hn-'));
