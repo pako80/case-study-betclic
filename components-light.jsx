@@ -131,15 +131,12 @@ function TopHeader({ pinnedCount }) {
       alignItems:'center', justifyContent:'space-between',
       background:'transparent', flex:'0 0 auto',
     }}>
-      <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-        <button style={btn('icon')}><Icon.Burger /></button>
-        <button style={{ ...btn('icon'), gap: 2, paddingRight: 6 }}>
-          <Icon.Bell size={20}/>
-        </button>
+      <div style={{ display:'flex', alignItems:'center' }}>
+        <img src={asset('assets/logo-betclic.svg')} height={26} alt="" style={{ display:'block' }}/>
       </div>
-      <span style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', fontSize: 17, fontWeight: 600, color:'#111', letterSpacing: -0.4, pointerEvents:'none', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Live Now</span>
+      <span style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', fontSize: 17, fontWeight: 600, color:'#111', letterSpacing: -0.1, pointerEvents:'none', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Live Now</span>
       <div style={{ display:'flex', alignItems:'center', gap: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color:'#111' }}>€3,300.00</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color:'#111' }}>3,300.00 €</span>
         <div style={{
           width: 24, height: 24, borderRadius:'50%', background:'#000',
           display:'flex', alignItems:'center', justifyContent:'center',
