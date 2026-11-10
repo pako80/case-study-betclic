@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Live Lobby · KTO</title>
+
+<!-- Assets referenced as strings in JSX — lifted for standalone bundling -->
+<meta name="ext-resource-dependency" content="assets/logo-kto.svg" data-resource-id="assets/logo-kto.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-hot.svg" data-resource-id="assets/icon-hot.svg" />
+<meta name="ext-resource-dependency" content="assets/chip-pin-on.svg" data-resource-id="assets/chip-pin-on.svg" />
+<meta name="ext-resource-dependency" content="assets/chip-pin-off.svg" data-resource-id="assets/chip-pin-off.svg" />
+<meta name="ext-resource-dependency" content="assets/pin-selected.svg" data-resource-id="assets/pin-selected.svg" />
+<meta name="ext-resource-dependency" content="assets/pin-not-selected.svg" data-resource-id="assets/pin-not-selected.svg" />
+<meta name="ext-resource-dependency" content="assets/card-pin-on.svg" data-resource-id="assets/card-pin-on.svg" />
+<meta name="ext-resource-dependency" content="assets/card-pin-off.svg" data-resource-id="assets/card-pin-off.svg" />
+<meta name="ext-resource-dependency" content="assets/pinned-section.svg" data-resource-id="assets/pinned-section.svg" />
+<meta name="ext-resource-dependency" content="assets/pinpage-empty.svg" data-resource-id="assets/pinpage-empty.svg" />
+<meta name="ext-resource-dependency" content="assets/toast-pin.svg" data-resource-id="assets/toast-pin.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-popular.svg" data-resource-id="assets/icon-popular.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-a-z.svg" data-resource-id="assets/icon-a-z.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-close-all.svg" data-resource-id="assets/icon-close-all.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-open-all.svg" data-resource-id="assets/icon-open-all.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-football-color.svg" data-resource-id="assets/icon-football-color.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-tennis-color.svg" data-resource-id="assets/icon-tennis-color.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-basketball-color.svg" data-resource-id="assets/icon-basketball-color.svg" />
+<meta name="ext-resource-dependency" content="assets/icon-baseball.svg" data-resource-id="assets/icon-baseball.svg" />
+<meta name="ext-resource-dependency" content="assets/fomo-high.json" data-resource-id="assets/fomo-high.json" />
+<meta name="ext-resource-dependency" content="assets/fomo-medium.json" data-resource-id="assets/fomo-medium.json" />
+<meta name="ext-resource-dependency" content="assets/fomo-low.json" data-resource-id="assets/fomo-low.json" />
+
+<meta name="ext-resource-dependency" content="assets/logo-flamengo.svg" data-resource-id="assets/logo-flamengo.svg" />
+<meta name="ext-resource-dependency" content="assets/logo-palmeiras.svg" data-resource-id="assets/logo-palmeiras.svg" />
+<meta name="ext-resource-dependency" content="assets/logo-arsenal.svg" data-resource-id="assets/logo-arsenal.svg" />
+<meta name="ext-resource-dependency" content="assets/logo-chelsea.svg" data-resource-id="assets/logo-chelsea.svg" />
+<script>
+  // asset(path): returns the bundled blob URL when running standalone,
+  // otherwise the original relative path (keeps the live prototype working).
+  window.asset = function (p) {
+    return (window.__resources && window.__resources[p]) || p;
+  };
+</script>
+
+<template id="__bundler_thumbnail" data-bg-color="#000000">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#000000"/>
+    <path d="M600 250c0 0 70 55 70 150 0 45-30 70-30 70s70 25 70 120a110 110 0 0 1-220 0c0-70 45-110 70-140-25-25-25-45-25-70 45 0 70-50 95-130z" fill="#FA9600"/>
+    <path d="M600 330c0 0 45 38 45 100 0 30-20 48-20 48s48 18 48 82a76 76 0 0 1-146 0c0-48 30-74 47-92-17-17-17-30-17-48 30 0 47-33 60-90z" fill="#FAD749"/>
+  </svg>
+</template>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --bg-1: #0d0d0d;
+    --bg-2: #1e1e1e;
+    --bg-3: #323232;
+    --bg-4: #3c3c3c;
+    --line: #1e1e1e;
+    --text: #ffffff;
+    --text-muted: #828282;
+    --text-dim: #505050;
+    --green: #00dd70;
+    --green-soft: rgba(0,221,112,0.2);
+    --green-border: rgba(0,221,112,0.3);
+    --red: #d71920;
+    --yellow: #fad749;
+    --pin: #fad749;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #111;
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100%;
+  }
+  #root { height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<script>if (new URLSearchParams(location.search).get('var')) document.documentElement.style.cssText += ';background:transparent'; </script>
+<style>html[style*="transparent"] body{background:transparent}</style>
+<div id="root"></div>
+
+<script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
