@@ -1,6 +1,6 @@
 // app.jsx — Live Lobby Pinning prototype
 const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback } = React;
-const { Icon, Flag, StatusBar, TopHeader, TabChips, EventCard, SectionHeader, EmptyState, LeagueAccordion, MultiplasRow } = window.UI;
+const { Icon, Flag, StatusBar, TopHeader, TabChips, EventCard, SectionHeader, EmptyState, LeagueAccordion, MultiplasRow, MarketCtx, MarketTabs } = window.UI;
 
 // Variation tweaks for stakeholder demo
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -153,6 +153,8 @@ function App() {
   const [toast, setToast] = useState(null);
   const [collapsedLeagues, setCollapsedLeagues] = useState(() => new Set()); // leagues that user collapsed
   const [multiplas, setMultiplas] = useState(false); // Múltiplas View toggle
+  const [markets, setMarkets] = useState({});
+  const setMarket = (sport, id) => setMarkets(m => ({ ...m, [sport]: id }));
   const [tweaks, setTweaks] = window.useTweaks ? window.useTweaks(TWEAK_DEFAULTS) : [TWEAK_DEFAULTS, () => {}];
   const urlSnap = useRef(new URLSearchParams(location.search).get('snap'));
   useEffect(() => {
@@ -291,6 +293,7 @@ function App() {
   const showingPinTab = activeTab === 'pin';
 
   return (
+    <MarketCtx.Provider value={markets}>
     <IOSFrame>
       <div style={{
         height:'100%', display:'flex', flexDirection:'column',
@@ -396,6 +399,7 @@ function App() {
                   title={window.SPORTS[g.sport]?.label || g.sport}
                   count={g.items.length}
                 />
+                {['football','tennis','basketball'].includes(g.sport) && <MarketTabs sport={g.sport} value={markets[g.sport]} onChange={setMarket}/>}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
                   {g.items.map(e => (
                     <div key={e.id}
@@ -418,6 +422,7 @@ function App() {
           {/* SINGLE-SPORT TAB RENDER (Football / Tennis / Basketball / Volleyball) */}
           {!showingPinTab && activeTab !== 'hot' && (
             <>
+              {['football','tennis','basketball'].includes(activeTab) && <MarketTabs sport={activeTab} value={markets[activeTab]} onChange={setMarket}/>}
               {pinnedVisible.length > 0 && (() => {
                 const hotPinned = pinnedVisible.filter(e => e.id.startsWith('hn-'));
                 const normal = pinnedVisible.filter(e => !e.id.startsWith('hn-'));
@@ -541,6 +546,7 @@ function App() {
         </window.TweaksPanel>
       )}
     </IOSFrame>
+    </MarketCtx.Provider>
   );
 }
 

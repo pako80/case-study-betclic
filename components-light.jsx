@@ -254,10 +254,58 @@ function getExtraMarkets(event) {
 }
 window.getExtraMarkets = getExtraMarkets;
 
+
+const MarketCtx = React.createContext({});
+const MARKETS = {
+  football: [['winner','Match Winner'],['nextgoal','Next Goal'],['totalgoals','Total Goals'],['doublechance','Double Chance']],
+  tennis: [['winner','Match Winner'],['nextgame','Next Game'],['totalgames','Total Games'],['setwinner','Set Winner']],
+  basketball: [['winner','Match Winner'],['handicap','Handicap'],['totalpoints','Total Points'],['nextbasket','Next Basket']],
+};
+function marketOdds(event, mk) {
+  if (!mk || mk === 'winner' || !event.odds) return null;
+  const px = p => Math.max(1.02, 0.94 / p).toFixed(2);
+  const norm = a => { const t = a.reduce((x, y) => x + y, 0); return a.map(v => v / t); };
+  const q = event.odds.map(o => parseFloat(o.price)), raw = q.map(x => 1 / x), s = raw.reduce((x, y) => x + y, 0), p = raw.map(x => x / s);
+  const h = event.home.name, a = event.away.name, two = (names, ps) => ({ twoWay: true, odds: ps.map((v, i) => ({ label: names[i], price: px(v) })), names });
+  const sum = arr => (arr || []).reduce((x, y) => x + y, 0);
+  if (event.sport === 'football' && p.length === 3) {
+    const [ph, pd, pa] = p;
+    if (mk === 'nextgoal') { const [x, n, y] = norm([ph + pd * 0.4, 0.1 + pd * 0.25, pa + pd * 0.4]); return { twoWay: false, odds: [{ label:'1', price: px(x) }, { label:'None', price: px(n) }, { label:'2', price: px(y) }], names: [h, 'No goal', a] }; }
+    if (mk === 'totalgoals') { const line = (event.home.score || 0) + (event.away.score || 0) + 1.5, over = Math.min(0.75, Math.max(0.3, 0.55 + (0.27 - pd) * 0.9)); return two(['Over ' + line, 'Under ' + line], [over, 1 - over]); }
+    return { twoWay: false, odds: [{ label:'1X', price: px(ph + pd) }, { label:'12', price: px(ph + pa) }, { label:'X2', price: px(pd + pa) }], names: [h + ' or Draw', h + ' or ' + a, 'Draw or ' + a] };
+  }
+  if (event.sport === 'tennis' && p.length === 2) {
+    if (mk === 'nextgame') { const x = 0.5 + (p[0] - 0.5) * 0.5; return two([h, a], [x, 1 - x]); }
+    if (mk === 'setwinner') { const x = 0.5 + (p[0] - 0.5) * 0.8; return two([h, a], [x, 1 - x]); }
+    const played = sum(event.home.sets) + sum(event.away.sets), line = played + 4.5, over = 0.5 + (0.5 - Math.abs(p[0] - 0.5)) * 0.1;
+    return two(['Over ' + line, 'Under ' + line], [over, 1 - over]);
+  }
+  if (event.sport === 'basketball' && p.length === 2) {
+    if (mk === 'handicap') { const sp = Math.max(0.5, Math.round(Math.abs(p[0] - 0.5) * 24) + 0.5), fav = p[0] >= 0.5; return two([h + ' ' + (fav ? '-' : '+') + sp, a + ' ' + (fav ? '+' : '-') + sp], [0.52, 0.48]); }
+    if (mk === 'totalpoints') { const line = (event.home.score || 0) + (event.away.score || 0) + 40.5; return two(['Over ' + line, 'Under ' + line], [0.51, 0.49]); }
+    const x = 0.5 + (p[0] - 0.5) * 0.4; return two([h, a], [x, 1 - x]);
+  }
+  return null;
+}
+function MarketTabs({ sport, value, onChange }) {
+  return (
+    <div style={{ display:'flex', gap: 20, overflowX:'auto', padding:'0 4px 12px', scrollbarWidth:'none' }}>
+      {(MARKETS[sport] || []).map(([id, label]) => {
+        const on = id === (value || 'winner');
+        return (
+          <button key={id} onClick={() => onChange(sport, id)} style={{ flex:'0 0 auto', background:'none', border:'none', padding:'6px 0', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: on ? 700 : 500, color: on ? '#111' : '#6b6b6b', borderBottom: on ? '2px solid #FFCC00' : '2px solid transparent', whiteSpace:'nowrap' }}>{label}</button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ========== EVENT CARD ==========
 function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas, hidePin }) {
   const sport = window.SPORTS[event.sport];
   const [oddsFlash, setOddsFlash] = useState({});
+  const mk = React.useContext(MarketCtx)[event.sport];
+  const alt = marketOdds(event, mk);
 
   return (
     <div
@@ -327,12 +375,20 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
           <span>Markets suspended — penalties</span>
         </div>
       ) : (
+        alt ? (
+        <div style={{ display:'grid', gridTemplateColumns: alt.twoWay ? '1fr 1fr' : '1fr 1fr 1fr', gap: 6, marginTop: 2 }}>
+          {alt.odds.map((o, i) => (
+            <OddsButton key={mk + i} odds={o} twoWay={alt.twoWay} name={alt.names[i]} fav={parseFloat(o.price) === Math.min(...alt.odds.map(x => parseFloat(x.price)))}/>
+          ))}
+        </div>
+        ) :
         <div style={{ display:'grid', gridTemplateColumns: event.twoWay ? '1fr 1fr' : '1fr 1fr 1fr', gap: 6, marginTop: 2 }}>
           {event.odds.map((o, i) => (
             <OddsButton key={i} odds={o} twoWay={event.twoWay} name={i === 0 ? event.home.name : (!event.twoWay && i === 1) ? 'Draw' : event.away.name} fav={parseFloat(o.price) === Math.min(...event.odds.map(x => parseFloat(x.price)))}/>
           ))}
         </div>
-      )}
+        )
+      }
 
       {/* Múltiplas View — extra markets below Match Winner */}
       {multiplas && getExtraMarkets(event).map((m, idx) => (
@@ -554,6 +610,8 @@ function MultiplasRow({ on, onToggle, defaultMarket = 'Match Winner' }) {
   );
 }
 window.UI.MultiplasRow = MultiplasRow;
+window.UI.MarketCtx = MarketCtx;
+window.UI.MarketTabs = MarketTabs;
 function LeagueAccordion({ league, country, count, expanded, onToggle, children }) {
   return (
     <div style={{ borderRadius: 18, overflow:'hidden', background:'#ffffff', marginBottom: 8 }}>
