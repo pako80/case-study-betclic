@@ -185,7 +185,7 @@ function TabChips({ tabs, active, onChange, pinnedCount }) {
             }}
           >
             {isPin && t.icon ? <t.icon size={18} pinnedCount={pinnedCount} color={isActive ? '#323232' : pinnedCount > 0 ? "#9a7000" : "#6b6b6b"} /> : null}
-            {t.id === 'hot' ? <img src={asset("assets/icon-hot.svg")} width="18" height="18" alt="" style={{ display: 'block' }}/> : null}
+            {t.id === 'hot' ? <img src={asset("assets/icon-popular-red.svg")} width="18" height="18" alt="" style={{ display: 'block' }}/> : null}
             {!isPin && <span style={{ lineHeight: 1, display:'block' }}>{t.label}</span>}
             {isPin && (
               <span style={{

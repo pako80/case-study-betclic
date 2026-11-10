@@ -47,7 +47,7 @@ styleEl.textContent = `
 document.head.appendChild(styleEl);
 
 const TABS = [
-  { id: 'hot',        label: 'Hot',        icon: null },
+  { id: 'hot',        label: 'Hottest',        icon: null },
   { id: 'football',   label: 'Football',   icon: Icon.Football, count: 5 },
   { id: 'tennis',     label: 'Tennis',     icon: Icon.Tennis, count: 3 },
   { id: 'basketball', label: 'Basketball', icon: Icon.Basketball, count: 2 },
@@ -474,7 +474,7 @@ function App() {
                   <>
                     {restVisible.length > 0 && <>
                     <SectionHeader
-                      icon={<img src={asset("assets/icon-popular-red.svg")} width="20" height="20" alt=""/>}
+                      icon={<img src={asset("assets/icon-hot.svg")} width="20" height="20" alt=""/>}
                       title="Popular"
                       count={restVisible.length}
                       allOpen={allOpen}
