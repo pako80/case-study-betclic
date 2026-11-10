@@ -157,6 +157,7 @@ function App() {
   const setMarket = (sport, id) => setMarkets(m => ({ ...m, [sport]: id }));
   const [tweaks, setTweaks] = window.useTweaks ? window.useTweaks(TWEAK_DEFAULTS) : [TWEAK_DEFAULTS, () => {}];
   const urlSnap = useRef(new URLSearchParams(location.search).get('snap'));
+  useEffect(() => { const hp = new URLSearchParams(location.search).get('hot'); if (hp) setTweaks('hotMode', hp); }, []);
   useEffect(() => {
     if (urlSnap.current) { const u = urlSnap.current; urlSnap.current = null; if (u !== tweaks.scenario && window.SCENARIOS[u]) { setTweaks('scenario', u); return; } }
     const next = window.SCENARIOS && window.SCENARIOS[tweaks.scenario];
@@ -199,6 +200,7 @@ function App() {
     const map = {};
     events.forEach(e => { map[e.id] = e; });
     (window.HOTTEST_POOL || []).forEach(e => { map[e.id] = e; });
+    (window.ROLAND_GARROS_EVENTS || []).forEach(e => { map[e.id] = e; });
     return map;
   }, [events]);
   const findEvent = useCallback((id) => allEventsById[id], [allEventsById]);
@@ -207,8 +209,9 @@ function App() {
   const visibleEvents = useMemo(() => {
     if (activeTab === 'hot') return events.filter(e => e.hot);
     if (activeTab === 'pin') return pinnedIds.map(id => findEvent(id)).filter(Boolean);
+    if (activeTab === 'tennis' && tweaks.hotMode === 'roland-garros') return [...(window.ROLAND_GARROS_EVENTS || []).filter(e => e.sport === 'tennis'), ...events.filter(e => e.sport === 'tennis')];
     return events.filter(e => e.sport === activeTab);
-  }, [events, activeTab, pinnedIds, findEvent]);
+  }, [events, activeTab, pinnedIds, findEvent, tweaks.hotMode]);
 
   // partition into pinned (in display order) + rest (in their natural order)
   const pinnedVisible = useMemo(
@@ -292,6 +295,17 @@ function App() {
   const pinnedCount = pinnedIds.length;
   const showingPinTab = activeTab === 'pin';
 
+  const [blurOp, setBlurOp] = useState(0);
+  const chipsScroll = true;
+  const chipsEl = (
+    <TabChips
+      tabs={TABS}
+      active={activeTab}
+      onChange={(t) => { setCollapsedLeagues(new Set()); setActiveTab(t); }}
+      pinnedCount={pinnedCount}
+    />
+  );
+
   return (
     <MarketCtx.Provider value={markets}>
     <IOSFrame>
@@ -301,30 +315,27 @@ function App() {
         position:'relative',
       }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, zIndex:10 }}>
-          <div style={{ position:'absolute', top:0, left:0, right:0, bottom:-44, pointerEvents:'none',
+          <div style={{ position:'absolute', top:0, left:0, right:0, bottom: chipsScroll ? -40 : -44, pointerEvents:'none', opacity: chipsScroll ? blurOp : 1,
             background:'linear-gradient(to bottom, rgba(242,242,242,0.88) 0%, rgba(242,242,242,0.72) 60%, rgba(242,242,242,0.3) 100%)',
             WebkitBackdropFilter:'blur(20px) saturate(180%)', backdropFilter:'blur(20px) saturate(180%)',
-            WebkitMaskImage:'linear-gradient(to bottom, #000 0%, #000 48%, transparent 100%)', maskImage:'linear-gradient(to bottom, #000 0%, #000 48%, transparent 100%)' }}></div>
+            WebkitMaskImage:'linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%)', maskImage:'linear-gradient(to bottom, #000 0%, #000 40%, transparent 100%)' }}></div>
           <div style={{ position:'relative' }}>
           <TopHeader pinnedCount={pinnedCount}/>
-          <TabChips
-            tabs={TABS}
-            active={activeTab}
-            onChange={setActiveTab}
-            pinnedCount={pinnedCount}
-          />
+          {!chipsScroll && chipsEl}
           </div>
         </div>
 
         {/* SCROLL AREA */}
         <div
           ref={scrollRef}
+          onScroll={(e) => setBlurOp(Math.min(1, e.currentTarget.scrollTop / 24))}
           className="scroll-area"
           style={{
-            position:'absolute', inset:0, overflowY:'auto', padding:'116px 8px 80px',
+            position:'absolute', inset:0, overflowY:'auto', padding: (chipsScroll ? '56px' : '116px') + ' 8px 80px',
             scrollbarWidth:'none',
           }}
         >
+          {chipsScroll && <div style={{ margin:'0 -8px' }}>{chipsEl}</div>}
           {/* HOT TAB — grouped by sport, but events within a sport are standalone (no league grouping) */}
           {activeTab === 'hot' && (() => {
             const isRG = tweaks.hotMode === 'roland-garros';
@@ -333,11 +344,11 @@ function App() {
             const baseHot = isRG
               ? (window.ROLAND_GARROS_EVENTS || [])
               : events.filter(e => e.hot);
-            const hotItems = baseHot.slice(0, isRG ? 2 : 5);
+            const hotItems = isRG ? [...baseHot.filter(e => e.sport === 'tennis').slice(0, 2), ...baseHot.filter(e => e.sport !== 'tennis')] : baseHot.slice(0, 5);
             if (hotItems.length === 0) {
               return <div style={{ padding: 40, textAlign:'center', color:'#6b6b6b', fontSize: 13 }}>No hot events right now</div>;
             }
-            const order = tweaks.scenario === 'nba' ? ['basketball','football','tennis','volleyball'] : ['football','tennis','basketball','volleyball'];
+            const order = isRG ? ['tennis','football','basketball','volleyball'] : tweaks.scenario === 'nba' ? ['basketball','football','tennis','volleyball'] : ['football','tennis','basketball','volleyball'];
             const sportIcons = {
               football: 'assets/icon-football-color.svg',
               tennis: 'assets/icon-tennis-color.svg',
@@ -393,7 +404,7 @@ function App() {
                 </>
               )}
               {groups.map(g => (
-              <React.Fragment key={g.sport}>
+              <div key={g.sport}>
                 <SectionHeader
                   icon={<img src={asset(sportIcons[g.sport])} width="22" height="22" alt="" style={{ filter: g.sport === 'football' ? 'brightness(0)' : 'none' }}/>}
                   title={window.SPORTS[g.sport]?.label || g.sport}
@@ -415,7 +426,7 @@ function App() {
                     </div>
                   ))}
                 </div>
-              </React.Fragment>
+              </div>
             ))}</>;
           })()}
 
@@ -461,6 +472,7 @@ function App() {
                 const allOpen = grp.leagueKeys.every(k => !collapsedLeagues.has(k));
                 return (
                   <>
+                    {restVisible.length > 0 && <>
                     <SectionHeader
                       icon={<img src={asset("assets/icon-popular-red.svg")} width="20" height="20" alt=""/>}
                       title="Popular"
@@ -469,6 +481,7 @@ function App() {
                       onToggleAll={() => toggleAllInScope(grp.leagueKeys)}
                     />
                     {grp.node}
+                    </>}
 
                     {/* A-Z — less popular leagues, grouped by league in alphabetical order */}
                     {['football','tennis','basketball'].includes(activeTab) && (() => {
@@ -552,10 +565,11 @@ function App() {
 
 // ========== iOS frame wrapper (uses copied starter component) ==========
 function IOSFrame({ children }) {
-  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 500px)').matches);
+  const forced = new URLSearchParams(location.search).get('frame') === '1';
+  const [mobile, setMobile] = useState(() => !forced && window.matchMedia('(max-width: 500px)').matches);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 500px)');
-    const h = e => setMobile(e.matches);
+    const h = e => setMobile(!forced && e.matches);
     mq.addEventListener('change', h);
     return () => mq.removeEventListener('change', h);
   }, []);

@@ -135,7 +135,6 @@ function TopHeader({ pinnedCount }) {
         <button style={btn('icon')}><Icon.Burger /></button>
         <button style={{ ...btn('icon'), gap: 2, paddingRight: 6 }}>
           <Icon.Bell size={20}/>
-          <span style={{ fontSize: 13, color:'#111', fontWeight: 500 }}>3</span>
         </button>
       </div>
       <span style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', fontSize: 17, fontWeight: 600, color:'#111', letterSpacing: -0.4, pointerEvents:'none', fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>Live Now</span>
@@ -289,7 +288,7 @@ function marketOdds(event, mk) {
 }
 function MarketTabs({ sport, value, onChange }) {
   return (
-    <div style={{ display:'flex', gap: 20, overflowX:'auto', padding:'0 4px 12px', scrollbarWidth:'none' }}>
+    <div style={{ margin:'0 -8px 6px', padding:'0 12px 8px', display:'flex', gap: 20, overflowX:'auto', scrollbarWidth:'none' }}>
       {(MARKETS[sport] || []).map(([id, label]) => {
         const on = id === (value || 'winner');
         return (
@@ -525,7 +524,7 @@ function SectionHeader({ icon, title, count, allOpen, onToggleAll }) {
     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 4px 14px' }}>
       <div style={{ display:'flex', alignItems:'center', gap: 4 }}>
         {icon}
-        <span style={{ fontSize: 17, fontWeight: 700, color:'#111' }}>{title}</span>
+        <span style={{ fontSize: 19, fontWeight: 700, color:'#111' }}>{title}</span>
       </div>
       {onToggleAll ? (
         <button

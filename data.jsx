@@ -372,6 +372,21 @@ window.ROLAND_GARROS_EVENTS = [
     market: 'Match Winner',
     odds: [{ label: 'Medvedev', price: '1.85' }, { label: 'Ruud', price: '1.95' }],
     fomo: 'Trending' },
+  { id: 'rgf-1', sport: 'football', league: 'Indian Super League', flag: 'intl', rg: true, hot: true,
+    live: { minute: "38'" },
+    home: { name: 'Mumbai City', score: 1 }, away: { name: 'Kerala Blasters', score: 0 },
+    market: 'Match Winner',
+    odds: [{ label: '1', price: '1.62' }, { label: 'X', price: '3.80' }, { label: '2', price: '5.10' }] },
+  { id: 'rgf-2', sport: 'football', league: 'J1 League', flag: 'jp', rg: true, hot: true,
+    live: { minute: "63'" },
+    home: { name: 'Vissel Kobe', score: 2 }, away: { name: 'Yokohama F. Marinos', score: 2 },
+    market: 'Match Winner',
+    odds: [{ label: '1', price: '2.45' }, { label: 'X', price: '3.30' }, { label: '2', price: '2.70' }] },
+  { id: 'rgf-3', sport: 'football', league: 'K League 1', flag: 'intl', rg: true, hot: true,
+    live: { minute: "77'" },
+    home: { name: 'Jeonbuk', score: 0 }, away: { name: 'Ulsan HD', score: 1 },
+    market: 'Match Winner',
+    odds: [{ label: '1', price: '3.40' }, { label: 'X', price: '3.10' }, { label: '2', price: '2.15' }] },
 ];
 
 // ─── Hottest Now demo pool ─────────────────────────────────
