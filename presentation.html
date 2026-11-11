@@ -21,23 +21,22 @@ iframe{width:390px;height:844px;border:0;background:#f2f2f2;display:block;border
 </style>
 </head>
 <body>
-<div class="bar"><select id="scen" aria-label="Day scenario"></select><select id="ui" aria-label="UI variant"><option value="1">UI: Yellow selection</option><option value="2">UI: Dark grey selection</option></select><select id="hot" aria-label="Hot tab content"><option value="default">Hot: Default</option><option value="roland-garros">Hot: Roland Garros</option></select></div>
+<div class="bar"><label for="scen" style="font-size:12px;font-weight:600;color:#6b6b6b">View prototype during:</label><select id="scen" aria-label="Day scenario"></select></div>
 <div class="phone"><div class="box" id="box"><div class="shell"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><iframe id="frame" title="Live Lobby"></iframe></div></div></div>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <script type="text/babel" src="data.jsx"></script>
 <script type="text/babel" src="data-sunday.jsx"></script>
 <script>
 (function(){
-var S=[['pm','Sunday 15:30 CET'],['eve','Sunday 21:30 CET'],['fri','Quiet Friday 21:30 CET'],['nba','NBA night 02:30 CET']];
-var q=new URLSearchParams(location.search),sel=document.getElementById('scen'),hot=document.getElementById('hot'),frame=document.getElementById('frame'),ui=document.getElementById('ui');ui.value=q.get('ui')==='1'?'1':'2';
-if(q.get('hot')==='roland-garros')hot.value='roland-garros';
-function load(){frame.src='index.html?frame=1&snap='+sel.value+(hot.value!=='default'?'&hot='+hot.value:'')+'&ui='+ui.value}
-sel.onchange=function(){hot.value='default';load()};hot.onchange=load;ui.onchange=load;
+var S=[['pm','Busy Football Sundays 15:30 CET'],['eve','Busy Football Sundays 21:30 CET'],['fri','Quiet Friday 21:30 CET'],['rg','High Profile Afternoon Tennis 15:00 CET'],['nba','NBA night 02:30 CET']];
+var q=new URLSearchParams(location.search),sel=document.getElementById('scen'),frame=document.getElementById('frame');
+function load(){var rg=sel.value==='rg';frame.src='index.html?frame=1&snap='+(rg?'pm':sel.value)+(rg?'&hot=roland-garros':'')+'&ui=2'}
+sel.onchange=load;
 function fit(){var k=Math.min(1,(innerHeight-32)/868),b=document.getElementById('box');b.style.transform='scale('+k+')';b.style.margin=(-(868*(1-k))/2)+'px 0'}
 addEventListener('resize',fit);fit();
 var t=setInterval(function(){if(!window.SCENARIOS)return;clearInterval(t);
-S.forEach(function(s){var o=document.createElement('option');o.value=s[0];o.textContent=s[1]+' · '+window.SCENARIOS[s[0]].length+' live';sel.appendChild(o)});
-if(S.some(function(s){return s[0]===q.get('s')}))sel.value=q.get('s');load()},50);
+S.forEach(function(s){var o=document.createElement('option');o.value=s[0];o.textContent=s[1]+' · '+(s[0]==='rg'?window.SCENARIOS.pm.length+(window.ROLAND_GARROS_EVENTS||[]).length:window.SCENARIOS[s[0]].length)+' live';sel.appendChild(o)});
+var qs=q.get('hot')==='roland-garros'?'rg':q.get('s');if(S.some(function(s){return s[0]===qs}))sel.value=qs;load()},50);
 })();
 </script>
 </body>
