@@ -236,9 +236,9 @@ const INITIAL_EVENTS = [
   // WTA Tour (1)
   {
     id: 't3', sport: 'tennis', league: 'WTA Tour', flag: 'us',
-    live: { minute: 'SET 1 GAME 4' },
-    home: { name: 'Swiatek',   sets: [3] },
-    away: { name: 'Sabalenka', sets: [2] },
+    live: { minute: 'Starting in 5 minutes' }, upcoming: true,
+    home: { name: 'Swiatek',   sets: [] },
+    away: { name: 'Sabalenka', sets: [] },
     market: 'Match Winner',
     odds: [{ label: 'Swiatek', price: '1.48' }, { label: 'Sabalenka', price: '2.75', trend: 'down' }],
     twoWay: true,

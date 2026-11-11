@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Busy Sunday · live event model</title>
+<style>
+:root{--bg:#0d0d0d;--c:#1e1e1e;--l:#323232;--t:#fff;--m:#9a9a9a;--g:#00dd70;--y:#FFCC00}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;padding:32px 20px 64px}
+main{max-width:880px;margin:0 auto;display:grid;gap:20px}h1{font-size:28px;margin:0}h2{font-size:17px;margin:0 0 10px}p{margin:0;color:var(--m)}
+a{color:var(--y)}a:hover{color:#fff}
+.card{background:var(--c);border-radius:14px;padding:20px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.kpi{background:var(--c);border-radius:14px;padding:16px}.kpi b{display:block;font-size:34px;color:var(--y);line-height:1.1}.kpi span{color:var(--m);font-size:13px}
+.tz{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tz button{background:none;border:2px solid var(--l);color:var(--t);border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer}.tz button.on{background:var(--y);border-color:var(--y);color:#323232}
+.chart{display:flex;align-items:flex-end;gap:3px;height:170px}.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%;min-width:0}
+.bar i{width:100%;background:var(--g);border-radius:3px 3px 0 0;display:block}.bar.pk i{background:var(--y)}.bar em{font-style:normal;font-size:11px;color:var(--m)}
+.ax{display:flex;gap:3px;margin-top:6px}.ax span{flex:1;font-size:10px;color:var(--m);text-align:center;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--l)}th{color:var(--m);font-weight:500}td.n{text-align:right;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}ul{margin:0;padding-left:18px;color:var(--m)}li{margin:4px 0}li b{color:var(--t);font-weight:600}
+.links{display:flex;gap:10px;flex-wrap:wrap}.links a{background:var(--y);color:#323232;text-decoration:none;border-radius:999px;padding:9px 16px;font-weight:600;font-size:14px}
+</style></head><body><main>
+<div><h1>Busy Sunday: how many events are live?</h1><p style="margin-top:6px">Modelled from typical kick-off slots on an in-season Sunday. Not a real fixture list; counts cover the major leagues only (see assumptions).</p></div>
+<div class="kpis"><div class="kpi"><b>12</b><span>football live at the European peak, 15:30 CET (11:30 BRT)</span></div><div class="kpi"><b>10</b><span>football live in the evening wave, 21:30 CET (17:30 BRT), led by Brazil</span></div><div class="kpi"><b>21</b><span>events in the lobby at the peak (12 football, 6 tennis, 2 basketball, 1 volleyball)</span></div><div class="kpi"><b>2–3×</b><span>expected once second divisions and lower leagues are in the feed (assumption)</span></div></div>
+<section class="card"><h2>Live football across the day</h2><div class="tz" id="tz"></div><div class="chart" id="chart"></div><div class="ax" id="ax"></div><p style="margin-top:12px;font-size:13px">A match counts as live for 107 minutes after kick-off (two halves, stoppage and the break). Yellow marks the peak.</p></section>
+<div class="two">
+<section class="card"><h2>Tennis</h2><ul>
+<li><b>No Grand Slam on the coming Sundays.</b> The last one, the US Open, ended 13 Sep. The next are the Australian Open in January and Roland-Garros from 24 May.</li>
+<li><b>Nitto ATP Finals, Turin, 15–22 Nov.</b> Sunday 15 Nov is its opening day, so it leads tennis in the lobby. Sessions around 14:00 and 21:00 CET.</li>
+<li><b>Slam Sundays do matter.</b> Roland-Garros, the US Open and the Australian Open play on their middle Sunday, with a full round of singles on the big courts. Wimbledon's middle Sunday is a rest day. On those dates the Slam should lead Hot and Tennis; the Roland-Garros tweak already does this.</li>
+<li>Challenger and WTA 125 events fill the rest: 5 live at the peak, 2 in the evening.</li></ul></section>
+<section class="card"><h2>Time zones</h2><ul>
+<li><b>One live list for everyone.</b> Only the peak moves, depending on where your players are.</li>
+<li><b>Brazil (BRT):</b> CET minus 4 h in winter, minus 5 h in summer. The European peak is late morning there. Brasileirão kicks off at 20:00 CET (16:00 BRT), so Brazil forms the evening wave.</li>
+<li><b>UK:</b> CET minus 1 h. <b>US East:</b> CET minus 6 h, so NBA Sunday games land in the evening wave.</li>
+<li><b>Japan:</b> CET plus 8 h. J1 League is live around 06:00 CET, before the peak, so it is not in the lobby.</li></ul></section></div>
+<section class="card"><h2>Kick-off slots used (CET)</h2><table id="slots"><thead><tr><th>League</th><th>Kick-offs</th><th class="n">Matches</th></tr></thead><tbody></tbody></table></section>
+<section class="card"><h2>Assumptions to check</h2><ul>
+<li>Slot counts are typical for an in-season Sunday, not taken from a published schedule.</li>
+<li>15 and 22 Nov are likely inside an international break, when club football pauses. Use an ordinary league Sunday for real planning.</li>
+<li>Only 8 competitions are modelled. Add second divisions, cups and smaller leagues to get closer to the real feed.</li></ul></section>
+<div class="links"><a href="index-light.html?snap=pm">Open lobby: 15:30 CET peak</a><a href="index-light.html?snap=eve">Open lobby: 21:30 CET evening</a></div>
+</main>
+<script>
+const S=[['Premier League','13:00 · 15:00 ×2 · 17:30',[['13:00',1],['15:00',2],['17:30',1]]],['La Liga','14:00 · 16:15 · 18:30 · 21:00',[['14:00',1],['16:15',1],['18:30',1],['21:00',1]]],['Serie A','12:30 · 15:00 ×2 · 18:00 · 20:45',[['12:30',1],['15:00',2],['18:00',1],['20:45',1]]],['Bundesliga','15:30 ×2 · 17:30',[['15:30',2],['17:30',1]]],['Ligue 1','13:00 · 15:00 ×2 · 17:05 · 20:45',[['13:00',1],['15:00',2],['17:05',1],['20:45',1]]],['Eredivisie','12:15 · 14:30 ×2 · 16:45',[['12:15',1],['14:30',2],['16:45',1]]],['Primeira Liga','18:00 · 21:15',[['18:00',1],['21:15',1]]],['Süper Lig','14:00 · 17:00 · 20:00',[['14:00',1],['17:00',1],['20:00',1]]],['Brasileirão Série A','20:00 ×2 · 22:30 ×2',[['20:00',2],['22:30',2]]],['Brasileirão Série B','20:00 ×2',[['20:00',2]]]];
+const m=t=>{const[h,i]=t.split(':').map(Number);return h*60+i};
+const all=S.flatMap(s=>s[2]);const live=t=>all.filter(([k])=>{const e=t-m(k);return e>=0&&e<=107}).reduce((a,x)=>a+x[1],0);
+const zones=[['CET',0],['Brazil (BRT)',-240],['UK',-60],['US East (ET)',-360],['Japan (JST)',480]];let zi=0;
+const fmt=t=>{t=((t%1440)+1440)%1440;return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
+const times=[];for(let t=11*60;t<=23*60+30;t+=30)times.push(t);
+const max=Math.max(...times.map(live));
+function draw(){document.getElementById('tz').innerHTML=zones.map((z,i)=>`<button class="${i==zi?'on':''}" onclick="zi=${i};draw()">${z[0]}</button>`).join('');
+document.getElementById('chart').innerHTML=times.map(t=>{const n=live(t);return `<div class="bar ${n==max?'pk':''}"><em>${n}</em><i style="height:${n/max*130}px"></i></div>`}).join('');
+document.getElementById('ax').innerHTML=times.map((t,i)=>`<span>${i%2?'':fmt(t+zones[zi][1])}</span>`).join('')}
+draw();
+document.querySelector('#slots tbody').innerHTML=S.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td class="n">${s[2].reduce((a,x)=>a+x[1],0)}</td></tr>`).join('');
+</script></body></html>

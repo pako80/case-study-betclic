@@ -9,7 +9,7 @@ function EPPill({ price, fav, w }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap: 6, width: w || 'auto', flex: w ? '0 0 ' + w + 'px' : '1 1 0', minWidth: 0 }}>
       <div style={{ height: 3, borderRadius: 2, background: fav ? '#00a854' : '#e6e6e6', margin:'0 2px' }}></div>
-      <button onClick={() => setSel(v => !v)} style={{ height: 44, borderRadius: 8, border:'none', cursor:'pointer', fontFamily: EPF, fontSize: 14, fontWeight: 700, background: sel ? '#FFCC00' : '#323232', color: sel ? '#323232' : '#FFCC00', transition:'background 150ms' }}>{price}</button>
+      <button onClick={() => setSel(v => !v)} style={{ height: 44, borderRadius: 8, border:'none', cursor:'pointer', fontFamily: EPF, fontSize: 14, fontWeight: 700, background: (window.V2 ? !sel : sel) ? '#FFCC00' : '#323232', color: (window.V2 ? !sel : sel) ? '#323232' : '#FFCC00', transition:'background 150ms' }}>{price}</button>
     </div>
   );
 }
@@ -136,7 +136,8 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
   const [blur, setBlur] = useStateEP(0);
   useEffectEP(() => { setMenu(false); }, [event.id]);
   useEffectEP(() => { const id = requestAnimationFrame(() => requestAnimationFrame(() => setOpen(true))); return () => cancelAnimationFrame(id); }, []);
-  const closedClip = from ? `inset(${from.t}px ${from.r}px ${from.b}px ${from.l}px round 18px)` : 'inset(55% 12px 25% 12px round 18px)';
+  const safe = (() => { const h = document.getElementById('frame-host'); return h ? parseFloat(getComputedStyle(h).paddingTop) || 0 : 0; })();
+  const closedClip = from ? `inset(${from.t + safe}px ${from.r}px ${from.b}px ${from.l}px round 18px)` : 'inset(55% 12px 25% 12px round 18px)';
   const onBack = () => { onBeginClose && onBeginClose(); setOpen(false); setTimeout(onClose, 480); };
   const sport = event.sport, football = sport === 'football';
   const tabs = football ? [['top', 'Top'], ['fast', 'Fast'], ['result', 'Result'], ['goals', 'Goals'], ['correct', 'Correct Score']] : null;
@@ -154,9 +155,9 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
   return (
     <div style={{ position:'absolute', inset: 0, zIndex: 30, background: open ? '#f2f2f2' : '#ffffff', fontFamily: EPF, clipPath: open ? 'inset(0px 0px 0px 0px round 0px)' : closedClip, WebkitClipPath: open ? 'inset(0px 0px 0px 0px round 0px)' : closedClip, transition: 'clip-path 480ms cubic-bezier(.32,.72,0,1), -webkit-clip-path 480ms cubic-bezier(.32,.72,0,1), background-color 320ms ease' }}>
       <div style={{ position:'absolute', inset: 0, opacity: open ? 1 : 0, transition: open ? 'opacity 300ms ease 140ms' : 'opacity 160ms ease' }}>
-        <div style={{ position:'absolute', top:0, left:0, right:0, zIndex: 10, height: 56 }}>
+        <div style={{ position:'absolute', top:0, left:0, right:0, zIndex: 10, height: 56 + safe }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, bottom:-32, pointerEvents:'none', opacity: blur, background:'linear-gradient(to bottom, rgba(20,25,47,0.85) 0%, rgba(20,25,47,0.62) 65%, rgba(20,25,47,0) 100%)', WebkitBackdropFilter:'blur(20px) saturate(160%)', backdropFilter:'blur(20px) saturate(160%)', WebkitMaskImage:'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)', maskImage:'linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%)' }}></div>
-          <div style={{ position:'relative', height: 56, padding:'0 12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div style={{ position:'relative', height: 56, marginTop: safe, padding:'0 12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <button onClick={onBack} aria-label="Close" style={{ width: 36, height: 36, borderRadius:'50%', border:'none', background:'#2b2b2e', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', padding: 0 }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
             </button>
@@ -168,7 +169,7 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
         </div>
         {menu && <div onClick={() => setMenu(false)} style={{ position:'absolute', inset: 0, zIndex: 40 }}></div>}
         <div onScroll={e => setBlur(Math.min(1, e.currentTarget.scrollTop / 24))} style={{ position:'absolute', inset: 0, overflowY:'auto', padding:'0 8px 40px', scrollbarWidth:'none' }}>
-          <div style={{ position:'relative', margin:'0 -8px', padding:'64px 0 0', marginBottom: 8, minHeight: 300, display:'flex', flexDirection:'column' }}>
+          <div style={{ position:'relative', margin:'0 -8px', padding:(64 + safe) + 'px 0 0', marginBottom: 8, minHeight: 300 + safe, display:'flex', flexDirection:'column' }}>
             <div style={{ position:'absolute', inset: 0, background:'#14192F', overflow:'hidden' }}>
               <div style={{ position:'absolute', inset: 0, backgroundImage:"url('assets/event-bg-test.jpg')", backgroundSize:'cover', backgroundRepeat:'no-repeat', backgroundPosition:'center 22%', filter:'blur(1px) brightness(0.55) saturate(1.1)' }}></div>
               <div style={{ position:'absolute', inset: 0, background:'linear-gradient(to bottom, rgba(20,25,47,0.78) 0%, rgba(20,25,47,0.55) 45%, rgba(20,25,47,0.88) 100%)' }}></div>
@@ -192,6 +193,7 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
                         </button>
                       );
                     })}
+                    <button onClick={() => { setMenu(false); onClose && onClose(); }} style={{ width:'100%', height: 36, marginTop: 6, border:'none', borderRadius: 10, background:'#323232', color:'#fff', fontSize: 13, fontWeight: 700, cursor:'pointer', fontFamily:'inherit' }}>All leagues</button>
                   </div>
                 )}
               </div>
@@ -228,7 +230,7 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
             </div>
             {tabs && (
               <div style={{ display:'flex', gap: 16, padding:'0 22px', margin:'auto 0 0', position:'relative', background:'#f2f2f2', overflowX:'auto', scrollbarWidth:'none' }}>
-                {tabs.map(([id, label]) => <button key={id} onClick={() => setTab(id)} style={{ background:'none', border:'none', padding:'14px 0 12px', flex:'0 0 auto', whiteSpace:'nowrap', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: tab === id ? 700 : 500, color: tab === id ? '#111' : '#6b6b6b', borderBottom: tab === id ? '2px solid #FFCC00' : '2px solid transparent' }}>{label}</button>)}
+                {tabs.map(([id, label]) => <button key={id} onClick={() => setTab(id)} style={{ background:'none', border:'none', padding:'14px 0 12px', flex:'0 0 auto', whiteSpace:'nowrap', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: tab === id ? 700 : 500, color: tab === id ? (window.V2 ? '#E10014' : '#111') : '#6b6b6b', borderBottom: tab === id ? '2px solid ' + (window.V2 ? '#E10014' : '#FFCC00') : '2px solid transparent' }}>{label}</button>)}
               </div>
             )}
           </div>

@@ -1,5 +1,8 @@
 // components.jsx — KTO Live Lobby UI building blocks
 const { useState, useEffect, useRef, useLayoutEffect, useMemo } = React;
+const V2 = new URLSearchParams(location.search).get('ui') !== '1';
+window.V2 = V2;
+const BC_RED = '#E10014';
 
 // ========== ICONS ==========
 const Icon = {
@@ -177,21 +180,21 @@ function TabChips({ tabs, active, onChange, pinnedCount }) {
               padding: isPin ? '0 8px' : t.id === 'hot' ? '0 14px 0 8px' : '0 14px', height: 36,
               borderRadius: 999,
               border: 'none',
-              background: isActive ? '#FFCC00' : '#ffffff',
-              color: isActive ? '#323232' : '#111',
+              background: isActive ? (V2 ? '#323232' : '#FFCC00') : '#ffffff',
+              color: isActive ? (V2 ? '#fff' : '#323232') : '#111',
               fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif", fontSize: 14, fontWeight: 500,
               cursor:'pointer', whiteSpace:'nowrap', flex:'0 0 auto',
               transition:'background 180ms ease, color 180ms ease, border-color 180ms ease',
             }}
           >
-            {isPin && t.icon ? <t.icon size={18} pinnedCount={pinnedCount} color={isActive ? '#323232' : pinnedCount > 0 ? "#9a7000" : "#6b6b6b"} /> : null}
+            {isPin && t.icon ? <t.icon size={18} pinnedCount={pinnedCount} color={isActive ? (V2 ? '#fff' : '#323232') : pinnedCount > 0 ? "#9a7000" : "#6b6b6b"} /> : null}
             {t.id === 'hot' ? <img src={asset("assets/icon-popular-red.svg")} width="18" height="18" alt="" style={{ display: 'block' }}/> : null}
             {!isPin && <span style={{ lineHeight: 1, display:'block' }}>{t.label}</span>}
             {isPin && (
               <span style={{
                 minWidth: 18, height: 18, padding:'0 4px', borderRadius: 6,
                 background: 'transparent',
-                color: isActive ? '#323232' : pinnedCount > 0 ? '#9a7000' : '#6b6b6b',
+                color: isActive ? (V2 ? '#fff' : '#323232') : pinnedCount > 0 ? '#9a7000' : '#6b6b6b',
                 fontSize: 11, fontWeight: 400,
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 transition:'background 200ms, color 200ms',
@@ -262,10 +265,11 @@ function periodLabel(event) {
   return n <= 45 ? 'First Half' : 'Second Half';
 }
 const MARKETS = {
-  football: [['winner','Match Winner'],['nextgoal','Next Goal'],['totalgoals','Total Goals'],['doublechance','Double Chance']],
+  football: [['winner','Match Winner'],['nextgoal','Next Goal'],['totalgoals','Total Goals'],['goalscorer','Goal Scorer']],
   tennis: [['winner','Match Winner'],['nextgame','Next Game'],['totalgames','Total Games'],['setwinner','Set Winner']],
   basketball: [['winner','Match Winner'],['handicap','Handicap'],['totalpoints','Total Points'],['nextbasket','Next Basket']],
 };
+const SCORERS = { 'Arsenal':['Saka','Havertz','Martinelli'], 'Man City':['Haaland','Foden','Doku'], 'Liverpool':['Salah','Núñez','Díaz'], 'Chelsea':['Palmer','Jackson','Madueke'], 'Man United':['Højlund','Fernandes','Garnacho'], 'Tottenham':['Son','Solanke','Johnson'], 'Real Madrid':['Mbappé','Vinícius Jr','Bellingham'], 'Barcelona':['Lewandowski','Yamal','Raphinha'], 'Atlético':['Griezmann','Álvarez','Sørloth'], 'Atlético Madrid':['Griezmann','Álvarez','Sørloth'], 'Bayern Munich':['Kane','Musiala','Sané'], 'Lyon':['Lacazette','Cherki','Fofana'], 'Lille':['David','Zhegrova','Sahraoui'], 'Flamengo':['Pedro','Gabigol','Arrascaeta'], 'Fluminense':['Cano','Kauã Elias','Ganso'], 'Atlético Mineiro':['Hulk','Paulinho','Cuello'], 'Cruzeiro':['Kaio Jorge','Matheus Pereira','Gabigol'], 'Bayern':['Kane','Musiala','Sané'], 'Dortmund':['Guirassy','Brandt','Adeyemi'], 'Leverkusen':['Schick','Wirtz','Boniface'], 'PSG':['Dembélé','Barcola','Ramos'], 'Marseille':['Greenwood','Henrique','Harit'], 'Juventus':['Vlahović','Yildiz','Conceição'], 'Inter':['Lautaro','Thuram','Taremi'], 'Milan':['Leão','Pulisic','Morata'], 'Napoli':['Lukaku','McTominay','Politano'], 'Benfica':['Pavlidis','Di María','Aktürkoğlu'], 'Porto':['Samu','Galeno','Pepê'], 'Sporting':['Gyökeres','Trincão','Paulinho'], 'Ajax':['Brobbey','Godts','Taylor'], 'PSV':['De Jong','Lozano','Pepi'], 'Galatasaray':['Icardi','Osimhen','Mertens'], 'Fenerbahçe':['Dzeko','Tadić','En-Nesyri'] };
 function marketOdds(event, mk) {
   if (!mk || mk === 'winner' || !event.odds) return null;
   const px = p => Math.max(1.02, 0.94 / p).toFixed(2);
@@ -277,7 +281,9 @@ function marketOdds(event, mk) {
     const [ph, pd, pa] = p;
     if (mk === 'nextgoal') { const [x, n, y] = norm([ph + pd * 0.4, 0.1 + pd * 0.25, pa + pd * 0.4]); return { twoWay: false, odds: [{ label:'1', price: px(x) }, { label:'None', price: px(n) }, { label:'2', price: px(y) }], names: [h, 'No goal', a] }; }
     if (mk === 'totalgoals') { const line = (event.home.score || 0) + (event.away.score || 0) + 1.5, over = Math.min(0.75, Math.max(0.3, 0.55 + (0.27 - pd) * 0.9)); return two(['Over ' + line, 'Under ' + line], [over, 1 - over]); }
-    return { twoWay: false, odds: [{ label:'1X', price: px(ph + pd) }, { label:'12', price: px(ph + pa) }, { label:'X2', price: px(pd + pa) }], names: [h + ' or Draw', h + ' or ' + a, 'Draw or ' + a] };
+    const pl = t => SCORERS[t] || ['Striker', 'Winger', 'Midfielder'], hp = pl(h), ap = pl(a), sh = [0.34, 0.2, 0.13], hl = Math.min(0.9, 0.5 + ph * 0.9), al = Math.min(0.9, 0.5 + pa * 0.9), sc = (l, i) => px(l * sh[i]);
+    const list = [[hp[0], sc(hl, 0)], [ap[0], sc(al, 0)], [hp[1], sc(hl, 1)], [ap[1], sc(al, 1)], [hp[2], sc(hl, 2)], [ap[2], sc(al, 2)]];
+    return { twoWay: false, odds: list.map(([n, pr]) => ({ label: n, price: pr })), names: list.map(x => x[0]) };
   }
   if (event.sport === 'tennis' && p.length === 2) {
     if (mk === 'nextgame') { const x = 0.5 + (p[0] - 0.5) * 0.5; return two([h, a], [x, 1 - x]); }
@@ -298,7 +304,7 @@ function MarketTabs({ sport, value, onChange }) {
       {(MARKETS[sport] || []).map(([id, label]) => {
         const on = id === (value || 'winner');
         return (
-          <button key={id} onClick={() => onChange(sport, id)} style={{ flex:'0 0 auto', background:'none', border:'none', padding:'6px 0', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: on ? 700 : 500, color: on ? '#111' : '#6b6b6b', borderBottom: on ? '2px solid #FFCC00' : '2px solid transparent', whiteSpace:'nowrap' }}>{label}</button>
+          <button key={id} onClick={() => onChange(sport, id)} style={{ flex:'0 0 auto', background:'none', border:'none', padding:'6px 0', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: on ? 700 : 500, color: on ? (V2 ? BC_RED : '#111') : '#6b6b6b', borderBottom: on ? '2px solid ' + (V2 ? BC_RED : '#FFCC00') : '2px solid transparent', whiteSpace:'nowrap' }}>{label}</button>
         );
       })}
     </div>
@@ -352,6 +358,8 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
               <span style={{ width:6, height:6, borderRadius:'50%', background:'#e0a800', display:'inline-block' }}/>
               <span style={{ color:'#9a7000', fontWeight: 700, fontSize: 11, letterSpacing: -0.2 }}>PENALTIES</span>
             </>
+          ) : event.upcoming ? (
+            <span style={{ color:'#e8590c', fontWeight: 600, fontSize: 11, letterSpacing: -0.2 }}>{event.live.minute}</span>
           ) : (
             <>
               <Icon.LiveDot size={6}/>
@@ -430,6 +438,7 @@ function ParticipantRow({ name, sport, league }) {
 }
 
 function ScoreColumn({ event }) {
+  if (event.upcoming) return null;
   if (event.home.sets) {
     // tennis / volleyball
     const h = event.home, a = event.away;
@@ -510,19 +519,19 @@ function OddsButtonInner({ odds, twoWay, name }) {
       onPointerLeave={() => setPressed(false)}
       style={{
         height: 44, borderRadius: 8,
-        background: sel ? '#FFCC00' : '#323232', border:'none',
+        background: (V2 ? !sel : sel) ? '#FFCC00' : '#323232', border:'none',
         display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap: 1,
         padding: '0 8px', minWidth: 0, fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color:'#fff', cursor:'pointer',
         transition:'transform 100ms ease, background 150ms ease',
         transform: pressed ? 'scale(0.97)' : 'scale(1)',
       }}
     >
-      <span style={{ fontSize: 11, color: sel ? '#323232' : '#FFCC00', fontWeight: 500, textOverflow:'ellipsis', overflow:'hidden', whiteSpace:'nowrap', maxWidth:'100%', textAlign:'center' }}>
+      <span style={{ fontSize: 11, color: (V2 ? !sel : sel) ? '#323232' : '#FFCC00', fontWeight: 500, textOverflow:'ellipsis', overflow:'hidden', whiteSpace:'nowrap', maxWidth:'100%', textAlign:'center' }}>
         {name || odds.label}
       </span>
-      <span style={{ display:'inline-flex', alignItems:'center', gap: 4, fontSize: 14, fontWeight: 700, color: sel ? '#323232' : '#FFCC00' }}>
-        {odds.trend === 'up' && <Icon.TrendUp color={sel ? '#007a3d' : '#00dd70'}/>}
-        {odds.trend === 'down' && <Icon.TrendDown color={sel ? '#c40000' : '#ff3b3b'}/>}
+      <span style={{ display:'inline-flex', alignItems:'center', gap: 4, fontSize: 14, fontWeight: 700, color: (V2 ? !sel : sel) ? '#323232' : '#FFCC00' }}>
+        {odds.trend === 'up' && <Icon.TrendUp color={(V2 ? !sel : sel) ? '#007a3d' : '#00dd70'}/>}
+        {odds.trend === 'down' && <Icon.TrendDown color={(V2 ? !sel : sel) ? '#c40000' : '#ff3b3b'}/>}
         {odds.price}
       </span>
     </button>

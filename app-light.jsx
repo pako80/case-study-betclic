@@ -321,7 +321,7 @@ function App() {
   return (
     <MarketCtx.Provider value={markets}>
     <OpenCtx.Provider value={openEventCard}>
-    <IOSFrame>
+    <IOSFrame statusDark={!!openId}>
       <div ref={rootRef} style={{
         height:'100%', display:'flex', flexDirection:'column',
         background:'#f2f2f2', color:'#111', overflow:'hidden',
@@ -394,28 +394,10 @@ function App() {
               : hotItems;
             const pinnedHot = pinnedIds.map(id => remaining.find(e => e.id === id)).filter(Boolean);
             const groups = order
-              .map(sport => ({ sport, items: remaining.filter(e => e.sport === sport && !pinnedIds.includes(e.id)) }))
+              .map(sport => ({ sport, items: remaining.filter(e => e.sport === sport).sort((x, y) => { const px = pinnedIds.indexOf(x.id), py = pinnedIds.indexOf(y.id); return (px < 0 ? 1e9 : px) - (py < 0 ? 1e9 : py); }) }))
               .filter(g => g.items.length > 0);
             return <>
               {hottestNow}
-              {pinnedHot.length > 0 && (
-                <>
-                  <SectionHeader
-                    icon={<img src={asset("assets/pinned-section.svg")} width={20} height={20} alt="" style={{ filter: "brightness(0) invert(0.2)" }}/>}
-                    title="Pinned"
-                    count={pinnedHot.length}
-                  />
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
-                    {pinnedHot.map(e => (
-                      <div key={e.id}
-                           ref={node => { if (node) cardRefs.current[e.id] = node; }}
-                           style={{ borderRadius: 18, overflow: 'hidden', background: '#ffffff' }}>
-                        <EventCard event={e} isPinned={true} onTogglePin={handleTogglePin} isLast={true} multiplas={multiplas}/>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
               {groups.map(g => (
               <div key={g.sport}>
                 <SectionHeader
@@ -524,7 +506,7 @@ function App() {
           )}
         </div>
 
-        {openId && window.EventPage && (() => { const ev = findEvent(openId) || events.find(e => e.sport === 'football') || events[0]; return ev ? <window.EventPage event={ev} from={openFrom} onBeginClose={() => setLobbyHidden(false)} leagueEvents={events.filter(x => x.league === ev.league)} onSelect={(id) => setOpenId(id)} onClose={() => { setLobbyHidden(false); setOpenId(null); setOpenFrom(null); }}/> : null; })()}
+        {openId && window.EventPage && (() => { const ev = findEvent(openId) || events.find(e => e.sport === 'football') || events[0]; const host = document.getElementById('frame-host'); const pg = ev ? <window.EventPage event={ev} from={openFrom} onBeginClose={() => setLobbyHidden(false)} leagueEvents={events.filter(x => x.league === ev.league)} onSelect={(id) => setOpenId(id)} onClose={() => { setLobbyHidden(false); setOpenId(null); setOpenFrom(null); }}/> : null; return pg && host ? ReactDOM.createPortal(pg, host) : pg; })()}
 
         {/* TOAST */}
         {toast && (
@@ -580,7 +562,7 @@ function App() {
 }
 
 // ========== iOS frame wrapper (uses copied starter component) ==========
-function IOSFrame({ children }) {
+function IOSFrame({ children, statusDark }) {
   const forced = new URLSearchParams(location.search).get('frame') === '1';
   const [mobile, setMobile] = useState(() => !forced && window.matchMedia('(max-width: 500px)').matches);
   useEffect(() => {
@@ -591,7 +573,7 @@ function IOSFrame({ children }) {
   }, []);
   if (mobile) {
     return (
-      <div style={{ position:'fixed', inset:0, background:'#f2f2f2', overflow:'hidden', paddingTop:'env(safe-area-inset-top)' }}>
+      <div id="frame-host" style={{ position:'fixed', inset:0, background:'#f2f2f2', overflow:'hidden', paddingTop:'env(safe-area-inset-top)' }}>
         {children}
       </div>
     );
@@ -601,8 +583,8 @@ function IOSFrame({ children }) {
     return <div style={{ width: 390, height: 844, background:'#f2f2f2', borderRadius: 36, overflow:'hidden' }}>{children}</div>;
   }
   return (
-    <Frame width={390} height={844}>
-      <div style={{ paddingTop: 50, height: '100%', background:'#f2f2f2' }}>{children}</div>
+    <Frame width={390} height={844} dark={statusDark}>
+      <div id="frame-host" style={{ paddingTop: 50, height: '100%', background:'#f2f2f2', position:'relative' }}>{children}</div>
     </Frame>
   );
 }
