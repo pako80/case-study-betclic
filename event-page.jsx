@@ -148,7 +148,7 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
   const inTab = id => !tabs || (TABSET[tab] || []).includes(id);
   const order = football ? ['winner', 'doublechance', 'nextgoal', 'nextcorner', 'nextcard', 'totalgoals', 'correctscore'] : ids;
   const winner = { twoWay: !!event.twoWay, odds: event.odds, names: event.odds.map((o, i) => i === 0 ? event.home.name : (!event.twoWay && i === 1) ? 'Draw' : event.away.name) };
-  const flagOk = ['br','uk','fr','de','jp','nl','pt','es','tr','us','ar','it'].includes(event.flag);
+  const flagOk = ['br','uk','fr','de','jp','nl','pt','es','tr','us','ar','it','eu'].includes(event.flag);
   const hasSets = !!event.home.sets;
   const multi = leagueEvents.length > 1;
   const period = window.UI.periodLabel(event);

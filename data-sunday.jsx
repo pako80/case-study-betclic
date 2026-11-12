@@ -1,7 +1,7 @@
 // data-sunday.jsx — busy-Sunday live-event model. Overrides INITIAL_EVENTS.
 // ?snap=pm → 15:30 CET / 11:30 BRT (Europe peak, 12 football live)   ?snap=eve → 21:30 CET / 17:30 BRT (Brazil + evening Europe)
 (function(){
-  Object.assign(window.LEAGUES, { 'Nitto ATP Finals':{country:'it'}, 'Copa do Brasil':{country:'br'}, 'PlusLiga':{country:'intl'}, 'MLS':{country:'us'}, 'Liga Profesional':{country:'ar'}, 'Primera División':{country:'cl'}, 'Liga BetPlay':{country:'co'} });
+  Object.assign(window.LEAGUES, { 'Nitto ATP Finals':{country:'it'}, 'Champions League':{country:'eu'}, 'Copa do Brasil':{country:'br'}, 'PlusLiga':{country:'intl'}, 'MLS':{country:'us'}, 'Liga Profesional':{country:'ar'}, 'Primera División':{country:'cl'}, 'Liga BetPlay':{country:'co'} });
   const AZ = new Set(['Brasileirão Série A','Brasileirão Série B','Copa do Brasil','Eredivisie','Primeira Liga','Süper Lig','ATP Challenger','WTA 125','Liga ACB','BBL','Liga Profesional','Primera División','Liga BetPlay']);
   const o3 = a => [{label:'1',price:a[0]},{label:'X',price:a[1]},{label:'2',price:a[2]}];
   const F = (id,league,flag,min,h,hs,a,as,odds,x={}) => ({ id, sport:'football', league, flag, az:AZ.has(league)||undefined, live:{minute:min}, home:{name:h,score:hs}, away:{name:a,score:as}, market:'Match Winner', odds:o3(odds), ...x });
@@ -87,9 +87,10 @@
     T('tz2','WTA 125','intl','SET 1 GAME 6','Kessler',[3],'Birrell',[3],'1.80','2.00'),
     V('v1','Superliga','br','SET 3','Sada Cruzeiro',[25,18,12],'Minas Tênis',[22,25,14],'1.70','2.15',['Cruzeiro','Minas']),
   ];
-  window.SCENARIOS = { pm: PM, eve: EVE, fri: FRI, nba: NBA };
+  const CR = [F('ucl','Champions League','eu',"92'",'Real Madrid',1,'Arsenal',1,['2.40','2.60','3.10'],{hot:true,crunch:true,message:'Real Madrid fighting hard for the title!'}), ...EVE.filter(e => e.id !== 'f1b')];
+  window.SCENARIOS = { pm: PM, eve: EVE, fri: FRI, nba: NBA, crunch: CR };
   const q = new URLSearchParams(location.search).get('snap');
-  const snap = ['eve','fri','nba'].includes(q) ? q : 'pm';
+  const snap = ['eve','fri','nba','crunch'].includes(q) ? q : 'pm';
   const snapOld = new URLSearchParams(location.search).get('snap') === 'eve' ? 'eve' : 'pm';
   window.SNAPSHOT = snap;
   window.INITIAL_EVENTS = window.SCENARIOS[snap];

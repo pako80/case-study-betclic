@@ -368,33 +368,11 @@ function App() {
               basketball: 'assets/icon-basketball-color.svg',
               volleyball: 'assets/icon-baseball.svg',
             };
-            // ── CRUNCH TIME — randomized decisive event from a pool of football / tennis / basketball.
-            // Suppressed entirely when the Roland-Garros variation is active.
-            // ── CRUNCH TIME — hidden for now (will be restored later)
-            const pool = [];
-            const decisive = pool.length > 0 ? pool[hottestIdx % pool.length] : null;
-            const hottestNow = decisive ? (
-              <React.Fragment key="hottest-now">
-                <SectionHeader
-                  icon={<img src={asset(sportIcons[decisive.sport])} width="22" height="22" alt=""/>}
-                  title="Crunch Time"
-                />
-                <HottestNowCard
-                  event={decisive}
-                  isPinned={pinnedIds.includes(decisive.id)}
-                  onTogglePin={handleTogglePin}
-                  cardRefs={cardRefs}
-                  multiplas={multiplas}
-                />
-              </React.Fragment>
-            ) : null;
-            // Exclude the crunch time event from the rest of the list
-            const remaining = decisive
-              ? hotItems.filter(e => e.id !== decisive.id)
-              : hotItems;
+            const hottestNow = null;
+            const remaining = hotItems;
             const pinnedHot = pinnedIds.map(id => remaining.find(e => e.id === id)).filter(Boolean);
             const groups = order
-              .map(sport => ({ sport, items: remaining.filter(e => e.sport === sport).sort((x, y) => { const px = pinnedIds.indexOf(x.id), py = pinnedIds.indexOf(y.id); return (px < 0 ? 1e9 : px) - (py < 0 ? 1e9 : py); }) }))
+              .map(sport => ({ sport, items: remaining.filter(e => e.sport === sport).sort((x, y) => { if (x.crunch !== y.crunch) return x.crunch ? -1 : 1; const px = pinnedIds.indexOf(x.id), py = pinnedIds.indexOf(y.id); return (px < 0 ? 1e9 : px) - (py < 0 ? 1e9 : py); }) }))
               .filter(g => g.items.length > 0);
             return <>
               {hottestNow}
@@ -416,6 +394,7 @@ function App() {
                         isPinned={pinnedIds.includes(e.id)}
                         onTogglePin={handleTogglePin}
                         isLast={true}
+                        hidePin={!!e.crunch}
                         multiplas={multiplas}
                       />
                     </div>

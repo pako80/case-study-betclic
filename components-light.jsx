@@ -82,7 +82,7 @@ const Icon = {
 
 // ========== FLAG (CSS-drawn ovals to avoid emoji slop) ==========
 function Flag({ code = 'intl', size = 22 }) {
-  if (['br','uk','fr','de','jp','nl','pt','es','tr','us','ar','it'].includes(code)) {
+  if (['br','uk','fr','de','jp','nl','pt','es','tr','us','ar','it','eu'].includes(code)) {
     return <img src={asset('assets/flags/' + code + '.svg')} width={size} height={size} alt="" style={{ display:'block', flex:'0 0 auto' }}/>;
   }
   const f = window.FLAGS[code] || window.FLAGS.intl;
@@ -312,7 +312,31 @@ function MarketTabs({ sport, value, onChange }) {
 }
 
 // ========== EVENT CARD ==========
+function CrunchMessage({ texts }) {
+  const [i, setI] = useState(0);
+  const [vis, setVis] = useState(true);
+  useEffect(() => {
+    let t2;
+    const t = setInterval(() => { setVis(false); t2 = setTimeout(() => { setI(n => (n + 1) % texts.length); setVis(true); }, 400); }, 4000);
+    return () => { clearInterval(t); clearTimeout(t2); };
+  }, [texts.length]);
+  return <span style={{ display:'block', opacity: vis ? 1 : 0, transition:'opacity 400ms ease' }}>{texts[i]}</span>;
+}
+
+function Flame({ size = 16, color = '#fff' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ display:'block', flex:'0 0 auto', overflow:'visible' }}>
+      <style>{'@keyframes crFlick{0%,100%{transform:scale(1,1) rotate(-3deg)}25%{transform:scale(.92,1.12) rotate(3deg)}50%{transform:scale(1.06,.94) rotate(-2deg)}75%{transform:scale(.94,1.08) rotate(2deg)}}@keyframes crInner{0%,100%{transform:scale(1)}50%{transform:scale(.75,1.15)}}.cr-fl{transform-box:fill-box;transform-origin:50% 100%;animation:crFlick .8s ease-in-out infinite}.cr-in{transform-box:fill-box;transform-origin:50% 100%;animation:crInner .55s ease-in-out infinite}'}</style>
+      <path d="M2 13.2h8.2l1.4-1.6h6.6a5.6 5.6 0 1 1-5.5 6.7H7.6A1.6 1.6 0 0 1 6 16.7V15H2.8A.8.8 0 0 1 2 14.2z" fill={color}/>
+      <circle cx="17.2" cy="17.2" r="1.7" fill={color === '#fff' ? '#161616' : '#fff'}/>
+      <g className="cr-fl"><path d="M15.6 11.3c-2.2-1.2-2.6-3.1-1.7-5.1.3-.7.2-1.6-.3-2.4 2.9.7 4.6 2.7 4.3 5 .5-.3.9-.8 1-1.4 1.1 2.1.3 4-1.3 5.1-.4-.6-1.1-.9-2-1.2z" fill="#FF3B47"/><path className="cr-in" d="M16.3 11.2c-1-.7-1.2-1.7-.7-2.7.7.5 1.4.9 1.7 1.6.3-.3.4-.7.4-1.1.9 1.1.7 2.3-.2 3-.2-.4-.6-.7-1.2-.8z" fill="#FFCC00"/></g>
+    </svg>
+  );
+}
+window.Flame = Flame;
+
 function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas, hidePin }) {
+  const cr = !!event.crunch;
   const sport = window.SPORTS[event.sport];
   const [oddsFlash, setOddsFlash] = useState({});
   const mk = React.useContext(MarketCtx)[event.sport];
@@ -324,7 +348,7 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
       data-event-id={event.id}
       style={{
         position:'relative',
-        background:'#ffffff',
+        background: cr ? '#1c1c1c' : '#ffffff',
         padding: 10,
         display:'flex', flexDirection:'column', gap: 6,
         borderRadius: isLast ? '0 0 18px 18px' : 0,
@@ -333,6 +357,7 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
         transition: 'opacity 150ms ease',
       }}
     >
+      {cr && <div style={{ margin:'-4px -4px 2px', padding:'5px 10px', borderRadius: 10, textAlign:'center', fontSize: 12, fontWeight: 800, fontStyle:'italic', letterSpacing: 0, textTransform:'uppercase', color:'#161616', backgroundImage:'linear-gradient(90deg,#F2491F,#FFC21A,#F2491F)', backgroundSize:'200% 100%', animation:'crGrad 3s linear infinite' }}><style>{'@keyframes crGrad{0%{background-position:200% 0}100%{background-position:0% 0}}'}</style><CrunchMessage texts={['Last moments in this Final', event.message || 'Fighting hard for the win!']}/></div>}
       {/* top row: pin + live + minute + league */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', fontSize: 11, color:'#6b6b6b' }}>
         <div style={{ display:'flex', alignItems:'center', gap: 6 }}>
@@ -353,7 +378,11 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
                 : <img src={asset('assets/card-pin-off.svg')} width={16} height={16} alt="" style={{ display:'block' }}/>}
             </button>
           )}
-          {event.penalties ? (
+          {cr ? (
+            <>
+              <span style={{ color:'#00dd70', fontWeight: 600, fontSize: 11, letterSpacing: -0.2 }}>{event.live.minute}</span>
+            </>
+          ) : event.penalties ? (
             <>
               <span style={{ width:6, height:6, borderRadius:'50%', background:'#e0a800', display:'inline-block' }}/>
               <span style={{ color:'#9a7000', fontWeight: 700, fontSize: 11, letterSpacing: -0.2 }}>PENALTIES</span>
@@ -369,22 +398,25 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
           )}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap: 6, minWidth: 0 }}>
-          {['br','uk','fr','de','jp','nl','pt','es','tr','us','ar','it'].includes(event.flag) && <Flag code={event.flag} size={18}/>}
-          <span style={{ fontSize: 11, color:'#6b6b6b', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{event.league}</span>
+          {['br','uk','fr','de','jp','nl','pt','es','tr','us','ar','it','eu'].includes(event.flag) && <Flag code={event.flag} size={18}/>}
+          <span style={{ fontSize: 11, color: cr ? '#a8a8a8' : '#6b6b6b', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{event.league}</span>
         </div>
       </div>
 
       {/* participants + score */}
       <div onClick={(e) => openEvt && openEvt(event, e.currentTarget.parentElement.getBoundingClientRect())} style={{ display:'grid', gridTemplateColumns:'1fr auto', gap: 4, marginTop: 2, cursor: openEvt ? 'pointer' : 'default' }}>
         <div style={{ display:'flex', flexDirection:'column', gap: 2 }}>
-          <ParticipantRow name={event.home.name} sport={event.sport} league={event.league}/>
-          <ParticipantRow name={event.away.name} sport={event.sport} league={event.league}/>
+          <ParticipantRow name={event.home.name} sport={event.sport} league={event.league} dark={cr}/>
+          <ParticipantRow name={event.away.name} sport={event.sport} league={event.league} dark={cr}/>
         </div>
         <ScoreColumn event={event}/>
       </div>
 
       {/* market name */}
-      <span style={{ fontSize: 11, color:'#6b6b6b', letterSpacing: 0, marginTop: 4 }}>{alt ? (((MARKETS[event.sport] || []).find(m => m[0] === mk) || [])[1] || event.market) : event.market}</span>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop: 4 }}>
+        <span style={{ fontSize: 11, color: cr ? '#a8a8a8' : '#6b6b6b', letterSpacing: 0 }}>{alt ? (((MARKETS[event.sport] || []).find(m => m[0] === mk) || [])[1] || event.market) : event.market}</span>
+        {cr && <span style={{ color:'#FF3B47', fontWeight: 700, fontSize: 11, letterSpacing: -0.1, whiteSpace:'nowrap' }}>{event.bets || '2.5K bets'}</span>}
+      </div>
 
       {/* odds row — suspended during penalties */}
       {event.penalties ? (
@@ -425,14 +457,14 @@ function EventCard({ event, isPinned, onTogglePin, isPinning, isLast, multiplas,
   );
 }
 
-const SHIRT_LEAGUES = new Set(['Ligue 1','Premier League','La Liga','Serie A','Bundesliga','Süper Lig']);
+const SHIRT_LEAGUES = new Set(['Champions League','Ligue 1','Premier League','La Liga','Serie A','Bundesliga','Süper Lig']);
 const SHIRTS = { 'PSG':'psg','Marseille':'marseille','Lyon':'lyon','Monaco':'monaco','Lille':'lille','Nice':'nice','Man City':'man-city','Arsenal':'arsenal','Liverpool':'liverpool','Chelsea':'chelsea','Tottenham':'tottenham','Newcastle':'newcastle','Real Madrid':'real-madrid','Barcelona':'barcelona','Atlético Madrid':'atletico-madrid','Sevilla':'sevilla','Inter':'inter','Juventus':'juventus','Milan':'milan','Napoli':'napoli','Bayern Munich':'bayern','Dortmund':'dortmund','Leverkusen':'leverkusen','RB Leipzig':'leipzig','Fenerbahçe':'fenerbahce','Galatasaray':'galatasaray' };
-function ParticipantRow({ name, sport, league }) {
+function ParticipantRow({ name, sport, league, dark }) {
   const shirt = SHIRT_LEAGUES.has(league) && SHIRTS[name];
   return (
     <div style={{ display:'flex', alignItems:'center', gap: 8, height: 18 }}>
       {shirt && <img src={asset('assets/shirts/' + shirt + '.svg')} width={18} height={18} alt="" style={{ display:'block', flex:'0 0 auto', filter:'drop-shadow(0 0 0.6px rgba(0,0,0,0.55))' }}/>}
-      <span style={{ fontSize: 14, lineHeight: '14px', color:'#111', fontWeight: 600 }}>{name}</span>
+      <span style={{ fontSize: 14, lineHeight: '14px', color: dark ? '#fff' : '#111', fontWeight: 600 }}>{name}</span>
     </div>
   );
 }
@@ -500,17 +532,18 @@ function Fomo({ label }) {
   );
 }
 
-function OddsButton({ odds, twoWay, fav, name }) {
+function OddsButton({ odds, twoWay, fav, name, dark }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap: 6, minWidth: 0 }}>
-      <div style={{ height: 3, borderRadius: 2, background: fav ? '#00a854' : '#e6e6e6', margin:'0 2px' }}></div>
-      <OddsButtonInner odds={odds} twoWay={twoWay} name={name}/>
+      <div style={{ height: 3, borderRadius: 2, background: fav ? '#00a854' : (dark ? '#3a3a3a' : '#e6e6e6'), margin:'0 2px' }}></div>
+      <OddsButtonInner odds={odds} twoWay={twoWay} name={name} dark={dark}/>
     </div>
   );
 }
-function OddsButtonInner({ odds, twoWay, name }) {
+function OddsButtonInner({ odds, twoWay, name, dark }) {
   const [pressed, setPressed] = useState(false);
   const [sel, setSel] = useState(false);
+  const inv = V2 ? !sel : sel;
   return (
     <button
       onClick={() => setSel(v => !v)}
@@ -519,19 +552,19 @@ function OddsButtonInner({ odds, twoWay, name }) {
       onPointerLeave={() => setPressed(false)}
       style={{
         height: 44, borderRadius: 8,
-        background: (V2 ? !sel : sel) ? '#FFCC00' : '#323232', border:'none',
+        background: inv ? '#FFCC00' : (dark ? '#2c2c2c' : '#323232'), border:'none',
         display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap: 1,
         padding: '0 8px', minWidth: 0, fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", color:'#fff', cursor:'pointer',
         transition:'transform 100ms ease, background 150ms ease',
         transform: pressed ? 'scale(0.97)' : 'scale(1)',
       }}
     >
-      <span style={{ fontSize: 11, color: (V2 ? !sel : sel) ? '#323232' : '#FFCC00', fontWeight: 500, textOverflow:'ellipsis', overflow:'hidden', whiteSpace:'nowrap', maxWidth:'100%', textAlign:'center' }}>
+      <span style={{ fontSize: 11, color: inv ? '#323232' : (dark ? '#a8a8a8' : '#FFCC00'), fontWeight: 500, textOverflow:'ellipsis', overflow:'hidden', whiteSpace:'nowrap', maxWidth:'100%', textAlign:'center' }}>
         {name || odds.label}
       </span>
-      <span style={{ display:'inline-flex', alignItems:'center', gap: 4, fontSize: 14, fontWeight: 700, color: (V2 ? !sel : sel) ? '#323232' : '#FFCC00' }}>
-        {odds.trend === 'up' && <Icon.TrendUp color={(V2 ? !sel : sel) ? '#007a3d' : '#00dd70'}/>}
-        {odds.trend === 'down' && <Icon.TrendDown color={(V2 ? !sel : sel) ? '#c40000' : '#ff3b3b'}/>}
+      <span style={{ display:'inline-flex', alignItems:'center', gap: 4, fontSize: 14, fontWeight: 700, color: inv ? '#323232' : '#FFCC00' }}>
+        {odds.trend === 'up' && <Icon.TrendUp color={inv ? '#007a3d' : '#00dd70'}/>}
+        {odds.trend === 'down' && <Icon.TrendDown color={inv ? '#c40000' : '#ff3b3b'}/>}
         {odds.price}
       </span>
     </button>
