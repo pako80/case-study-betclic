@@ -2,7 +2,9 @@
 // ?snap=pm → 15:30 CET / 11:30 BRT (Europe peak, 12 football live)   ?snap=eve → 21:30 CET / 17:30 BRT (Brazil + evening Europe)
 (function(){
   Object.assign(window.LEAGUES, { 'Nitto ATP Finals':{country:'it'}, 'Champions League':{country:'eu'}, 'Copa do Brasil':{country:'br'}, 'PlusLiga':{country:'intl'}, 'MLS':{country:'us'}, 'Liga Profesional':{country:'ar'}, 'Primera División':{country:'cl'}, 'Liga BetPlay':{country:'co'} });
-  const AZ = new Set(['Brasileirão Série A','Brasileirão Série B','Copa do Brasil','Eredivisie','Primeira Liga','Süper Lig','ATP Challenger','WTA 125','Liga ACB','BBL','Liga Profesional','Primera División','Liga BetPlay']);
+  Object.assign(window.FLAGS, { in:{bg:'#ff9933',stripe:'#138808'}, sa:{bg:'#006c35',stripe:'#ffffff'}, ae:{bg:'#00732f',stripe:'#ff0000'}, qa:{bg:'#8a1538',stripe:'#ffffff'} });
+  Object.assign(window.LEAGUES, { 'Saudi Pro League':{country:'sa'}, 'Indian Super League':{country:'in'}, 'UAE Pro League':{country:'ae'}, 'Qatar Stars League':{country:'qa'} });
+  const AZ = new Set(['UAE Pro League','Qatar Stars League','Brasileirão Série A','Brasileirão Série B','Copa do Brasil','Eredivisie','Primeira Liga','Süper Lig','ATP Challenger','WTA 125','Liga ACB','BBL','Liga Profesional','Primera División','Liga BetPlay']);
   const o3 = a => [{label:'1',price:a[0]},{label:'X',price:a[1]},{label:'2',price:a[2]}];
   const F = (id,league,flag,min,h,hs,a,as,odds,x={}) => ({ id, sport:'football', league, flag, az:AZ.has(league)||undefined, live:{minute:min}, home:{name:h,score:hs}, away:{name:a,score:as}, market:'Match Winner', odds:o3(odds), ...x });
   const T = (id,league,flag,min,h,hs,a,as,oh,oa,x={}) => ({ id, sport:'tennis', league, flag, az:AZ.has(league)||undefined, live:{minute:min}, twoWay:true, home:{name:h,sets:hs}, away:{name:a,sets:as}, market:'Match Winner', odds:[{label:h,price:oh},{label:a,price:oa}], ...x });
@@ -88,6 +90,16 @@
     V('v1','Superliga','br','SET 3','Sada Cruzeiro',[25,18,12],'Minas Tênis',[22,25,14],'1.70','2.15',['Cruzeiro','Minas']),
   ];
   const CR = [F('ucl','Champions League','eu',"92'",'Real Madrid',1,'Arsenal',1,['2.40','2.60','3.10'],{hot:true,crunch:true,message:'Real Madrid fighting hard for the title!'}), ...EVE.filter(e => e.id !== 'f1b')];
+  window.RG_FOOTBALL = [
+    F('me1','Saudi Pro League','sa',"34'",'Al Hilal',1,'Al Nassr',1,['2.30','3.40','2.90']),
+    F('me2','Saudi Pro League','sa',"58'",'Al Ittihad',2,'Al Ahli',0,['1.28','5.80','9.50']),
+    F('me3','Saudi Pro League','sa',"12'",'Al Shabab',0,'Al Fateh',0,['1.95','3.40','3.80']),
+    F('in1','Indian Super League','in',"61'",'Mohun Bagan',1,'Bengaluru FC',0,['1.60','3.80','5.20']),
+    F('in2','Indian Super League','in',"27'",'Mumbai City',0,'Kerala Blasters',0,['2.05','3.30','3.50']),
+    F('in3','Indian Super League','in','HT','FC Goa',1,'East Bengal',1,['2.40','3.10','2.90']),
+    F('ae1','UAE Pro League','ae',"70'",'Al Ain',2,'Shabab Al Ahli',1,['1.75','3.60','4.60']),
+    F('qa1','Qatar Stars League','qa',"44'",'Al Sadd',0,'Al Duhail',0,['2.20','3.20','3.10']),
+  ];
   window.SCENARIOS = { pm: PM, eve: EVE, fri: FRI, nba: NBA, crunch: CR };
   const q = new URLSearchParams(location.search).get('snap');
   const snap = ['eve','fri','nba','crunch'].includes(q) ? q : 'pm';

@@ -221,6 +221,7 @@ function App() {
   const visibleEvents = useMemo(() => {
     if (activeTab === 'hot') return events.filter(e => e.hot);
     if (activeTab === 'pin') return pinnedIds.map(id => findEvent(id)).filter(Boolean);
+    if (activeTab === 'football' && tweaks.hotMode === 'roland-garros' && window.RG_FOOTBALL) return window.RG_FOOTBALL;
     if (activeTab === 'tennis' && tweaks.hotMode === 'roland-garros') return [...(window.ROLAND_GARROS_EVENTS || []).filter(e => e.sport === 'tennis'), ...events.filter(e => e.sport === 'tennis')];
     return events.filter(e => e.sport === activeTab);
   }, [events, activeTab, pinnedIds, findEvent, tweaks.hotMode]);
