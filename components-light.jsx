@@ -298,15 +298,57 @@ function marketOdds(event, mk) {
   }
   return null;
 }
-function MarketTabs({ sport, value, onChange }) {
+function TabUnderline({ containerRef, activeId, color, bottom = 0 }) {
+  const [pos, setPos] = useState(null);
+  const [anim, setAnim] = useState(false);
+  const first = useRef(true);
+  useEffect(() => {
+    const box = containerRef.current; if (!box) return;
+    const el = box.querySelector('[data-tab="' + activeId + '"]'); if (!el) return;
+    const measure = () => { if (el.offsetWidth) setPos(p => (p && p.left === el.offsetLeft && p.width === el.offsetWidth) ? p : { left: el.offsetLeft, width: el.offsetWidth }); };
+    measure();
+    if (box.scrollWidth > box.clientWidth) box.scrollTo({ left: Math.max(0, el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2), behavior: first.current ? 'auto' : 'smooth' });
+    first.current = false;
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (ro) { ro.observe(box); ro.observe(el); }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    const t = setTimeout(() => { measure(); setAnim(true); }, 60);
+    return () => { clearTimeout(t); ro && ro.disconnect(); };
+  }, [activeId]);
+  if (!pos) return null;
+  return <span aria-hidden="true" style={{ position:'absolute', left: 0, bottom, height: 2, width: pos.width, borderRadius: 2, background: color, transform:'translateX(' + pos.left + 'px)', transition: anim ? 'transform 320ms cubic-bezier(.3,.8,.3,1), width 320ms cubic-bezier(.3,.8,.3,1)' : 'none', pointerEvents:'none' }}/>;
+}
+function SwipeArea({ ids, value, onSelect, children, style }) {
+  const st = useRef(null), swiped = useRef(false), [n, setN] = useState(0), [dir, setDir] = useState(0), prev = useRef(value);
+  const idx = Math.max(0, ids.indexOf(value));
+  const down = e => { if (e.pointerType === 'mouse' && e.button !== 0) return; st.current = { x: e.clientX, y: e.clientY }; swiped.current = false; };
+  const up = e => {
+    const s0 = st.current; st.current = null; if (!s0) return;
+    const dx = e.clientX - s0.x, dy = e.clientY - s0.y;
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const ni = idx + (dx < 0 ? 1 : -1);
+    if (ni < 0 || ni >= ids.length) return;
+    swiped.current = true; setDir(dx < 0 ? 1 : -1); setN(k => k + 1); onSelect(ids[ni]);
+  };
+  const name = n ? 'mkSw' + (dir > 0 ? 'L' : 'R') + (n % 2) : 'none';
   return (
-    <div style={{ margin:'0 -8px 6px', padding:'0 12px 8px', display:'flex', gap: 20, overflowX:'auto', scrollbarWidth:'none' }}>
+    <div onPointerDown={down} onPointerUp={up} onPointerCancel={() => { st.current = null; }} onClickCapture={e => { if (swiped.current) { e.stopPropagation(); e.preventDefault(); swiped.current = false; } }} style={{ touchAction:'pan-y' }}>
+      <style>{'@keyframes mkSwL0{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}@keyframes mkSwL1{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}@keyframes mkSwR0{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}@keyframes mkSwR1{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}'}</style>
+      <div style={{ ...style, animation: n ? name + ' 300ms cubic-bezier(.3,.8,.3,1)' : 'none' }}>{children}</div>
+    </div>
+  );
+}
+function MarketTabs({ sport, value, onChange }) {
+  const ref = useRef(null), cur = value || 'winner';
+  return (
+    <div ref={ref} style={{ margin:'0 -8px 6px', padding:'0 12px 8px', display:'flex', gap: 20, overflowX:'auto', scrollbarWidth:'none', position:'relative' }}>
       {(MARKETS[sport] || []).map(([id, label]) => {
-        const on = id === (value || 'winner');
+        const on = id === cur;
         return (
-          <button key={id} onClick={() => onChange(sport, id)} style={{ flex:'0 0 auto', background:'none', border:'none', padding:'6px 0', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: on ? 700 : 500, color: on ? (V2 ? BC_RED : '#111') : '#6b6b6b', borderBottom: on ? '2px solid ' + (V2 ? BC_RED : '#FFCC00') : '2px solid transparent', whiteSpace:'nowrap' }}>{label}</button>
+          <button key={id} data-tab={id} onClick={() => onChange(sport, id)} style={{ flex:'0 0 auto', background:'none', border:'none', padding:'6px 0 8px', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: on ? 700 : 500, color: on ? (V2 ? BC_RED : '#111') : '#6b6b6b', whiteSpace:'nowrap', transition:'color 200ms' }}>{label}</button>
         );
       })}
+      <TabUnderline containerRef={ref} activeId={cur} color={V2 ? BC_RED : '#FFCC00'} bottom={8}/>
     </div>
   );
 }
@@ -671,6 +713,9 @@ window.UI.marketOdds = marketOdds;
 window.UI.ScoreColumn = ScoreColumn;
 window.UI.getShirt = (name, league) => (SHIRT_LEAGUES.has(league) && SHIRTS[name]) ? 'assets/shirts/' + SHIRTS[name] + '.svg' : null;
 window.UI.MarketTabs = MarketTabs;
+window.UI.TabUnderline = TabUnderline;
+window.UI.SwipeArea = SwipeArea;
+window.UI.marketIds = sport => (MARKETS[sport] || []).map(m => m[0]);
 function LeagueAccordion({ league, country, count, expanded, onToggle, children }) {
   return (
     <div style={{ borderRadius: 18, overflow:'hidden', background:'#ffffff', marginBottom: 8 }}>

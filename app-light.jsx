@@ -1,6 +1,6 @@
 // app.jsx — Live Lobby Pinning prototype
 const { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback } = React;
-const { Icon, Flag, StatusBar, TopHeader, TabChips, EventCard, SectionHeader, EmptyState, LeagueAccordion, MultiplasRow, MarketCtx, MarketTabs, OpenCtx } = window.UI;
+const { Icon, Flag, StatusBar, TopHeader, TabChips, EventCard, SectionHeader, EmptyState, LeagueAccordion, MultiplasRow, MarketCtx, MarketTabs, OpenCtx, SwipeArea, marketIds } = window.UI;
 
 // Variation tweaks for stakeholder demo
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -385,7 +385,7 @@ function App() {
                   count={g.items.length}
                 />
                 {['football','tennis','basketball'].includes(g.sport) && <MarketTabs sport={g.sport} value={markets[g.sport]} onChange={setMarket}/>}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
+                <SwipeArea ids={marketIds(g.sport)} value={markets[g.sport] || 'winner'} onSelect={id => setMarket(g.sport, id)} style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 8 }}>
                   {g.items.map(e => (
                     <div key={e.id}
                          ref={node => { if (node) cardRefs.current[e.id] = node; }}
@@ -400,14 +400,14 @@ function App() {
                       />
                     </div>
                   ))}
-                </div>
+                </SwipeArea>
               </div>
             ))}</>;
           })()}
 
           {/* SINGLE-SPORT TAB RENDER (Football / Tennis / Basketball / Volleyball) */}
           {!showingPinTab && activeTab !== 'hot' && (
-            <>
+            <SwipeArea ids={marketIds(activeTab)} value={markets[activeTab] || 'winner'} onSelect={id => setMarket(activeTab, id)}>
               {['football','tennis','basketball'].includes(activeTab) && <div style={{ paddingTop: 14 }}><MarketTabs sport={activeTab} value={markets[activeTab]} onChange={setMarket}/></div>}
               {pinnedVisible.length > 0 && (() => {
                 const hotPinned = pinnedVisible.filter(e => e.id.startsWith('hn-'));
@@ -482,7 +482,7 @@ function App() {
                   </>
                 );
               })()}
-            </>
+            </SwipeArea>
           )}
         </div>
 

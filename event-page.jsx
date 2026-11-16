@@ -133,6 +133,7 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
   const [menu, setMenu] = useStateEP(false);
   const [open, setOpen] = useStateEP(false);
   const [tab, setTab] = useStateEP('top');
+  const tabsRef = React.useRef(null);
   const [blur, setBlur] = useStateEP(0);
   useEffectEP(() => { setMenu(false); }, [event.id]);
   useEffectEP(() => { const id = requestAnimationFrame(() => requestAnimationFrame(() => setOpen(true))); return () => cancelAnimationFrame(id); }, []);
@@ -170,7 +171,7 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
         {menu && <div onClick={() => setMenu(false)} style={{ position:'absolute', inset: 0, zIndex: 40 }}></div>}
         <div onScroll={e => setBlur(Math.min(1, e.currentTarget.scrollTop / 24))} style={{ position:'absolute', inset: 0, overflowY:'auto', padding:'0 8px 40px', scrollbarWidth:'none' }}>
           <div style={{ position:'relative', margin:'0 -8px', padding:(64 + safe) + 'px 0 0', marginBottom: 8, minHeight: 300 + safe, display:'flex', flexDirection:'column' }}>
-            <div style={{ position:'absolute', inset: 0, background:'#14192F', overflow:'hidden' }}>
+            <div style={{ position:'absolute', inset: '0 0 2px 0', background:'#14192F', overflow:'hidden' }}>
               <div style={{ position:'absolute', inset: 0, backgroundImage:"url('assets/event-bg-test.jpg')", backgroundSize:'cover', backgroundRepeat:'no-repeat', backgroundPosition:'center 22%', filter:'blur(1px) brightness(0.55) saturate(1.1)' }}></div>
               <div style={{ position:'absolute', inset: 0, background:'linear-gradient(to bottom, rgba(20,25,47,0.78) 0%, rgba(20,25,47,0.55) 45%, rgba(20,25,47,0.88) 100%)' }}></div>
             </div>
@@ -229,12 +230,13 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
               {epScorersAll(event) && <div style={{ fontSize: 11, lineHeight: '14px', color:'#9aa0b4', textAlign:'left' }}>{epScorersAll(event)}</div>}
             </div>
             {tabs && (
-              <div style={{ display:'flex', gap: 16, padding:'0 22px', margin:'auto 0 0', position:'relative', background:'#f2f2f2', overflowX:'auto', scrollbarWidth:'none' }}>
-                {tabs.map(([id, label]) => <button key={id} onClick={() => setTab(id)} style={{ background:'none', border:'none', padding:'14px 0 12px', flex:'0 0 auto', whiteSpace:'nowrap', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: tab === id ? 700 : 500, color: tab === id ? (window.V2 ? '#E10014' : '#111') : '#6b6b6b', borderBottom: tab === id ? '2px solid ' + (window.V2 ? '#E10014' : '#FFCC00') : '2px solid transparent' }}>{label}</button>)}
+              <div ref={tabsRef} style={{ display:'flex', gap: 16, padding:'0 22px', margin:'auto 0 0', position:'relative', background:'#f2f2f2', boxShadow:'0 2px 0 #f2f2f2', overflowX:'auto', scrollbarWidth:'none' }}>
+                {tabs.map(([id, label]) => <button key={id} data-tab={id} onClick={() => setTab(id)} style={{ background:'none', border:'none', padding:'14px 0 12px', flex:'0 0 auto', whiteSpace:'nowrap', cursor:'pointer', fontFamily:'inherit', fontSize: 13, fontWeight: tab === id ? 700 : 500, color: tab === id ? (window.V2 ? '#E10014' : '#111') : '#6b6b6b', transition:'color 200ms' }}>{label}</button>)}
+                <window.UI.TabUnderline containerRef={tabsRef} activeId={tab} color={window.V2 ? '#E10014' : '#FFCC00'}/>
               </div>
             )}
           </div>
-          <div style={{ display:'flex', flexDirection:'column', gap: 8 }}>
+          <window.UI.SwipeArea ids={(tabs || []).map(t => t[0])} value={tab} onSelect={setTab} style={{ display:'flex', flexDirection:'column', gap: 8, minHeight: 320 }}>
             {event.penalties ? (
               <div style={{ background:'#ffffff', borderRadius: 18, padding: 18, textAlign:'center', fontSize: 13, color:'#6b6b6b' }}>Markets suspended — penalties</div>
             ) : order.filter(inTab).map(id => {
@@ -246,7 +248,7 @@ function EventPage({ event, from, onClose, onBeginClose, leagueEvents = [], onSe
                 </EPCard>
               );
             })}
-          </div>
+          </window.UI.SwipeArea>
         </div>
       </div>
     </div>
